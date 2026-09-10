@@ -8,17 +8,17 @@
     <!-- Tailwind CSS untuk Styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- FontAwesome untuk Ikon (Pengganti Lucide agar berjalan langsung di HTML) -->
+    <!-- FontAwesome untuk Ikon -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- Google Fonts (Playfair Display & Inter) -->
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;900&display=swap" rel="stylesheet">
     
     <!-- React & ReactDOM Standalone -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel untuk menerjemahkan JSX secara langsung di browser -->
+    <!-- Babel untuk menerjemahkan JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -30,11 +30,9 @@
         h1, h2, h3, h4, h5, h6, .font-serif { 
             font-family: 'Playfair Display', serif; 
         }
-        /* Menyembunyikan scrollbar bawaan agar lebih rapi */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        /* Efek Animasi Dasar Tailwind (karena tidak pakai konfigurasi full) */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
@@ -42,14 +40,11 @@
     </style>
 </head>
 <body>
-    <!-- Wadah utama tempat React akan dirender -->
     <div id="root"></div>
 
     <script type="text/babel">
-        // Mengekstrak Hooks dari React global
         const { useState, useEffect } = React;
 
-        // Data Tahapan Sesuai Jadwal Pilkades Bangka Barat 2026
         const TAHAPAN_TIMELINE = [
             { id: 1, nama: "Persiapan & Pembentukan", mulai: "6 Jul", selesai: "4 Ags 2026", status: "selesai" },
             { id: 2, nama: "Pendaftaran Bakal Calon", mulai: "6 Ags", selesai: "19 Ags 2026", status: "selesai" },
@@ -92,39 +87,84 @@
             </div>
         );
 
-        const Beranda = ({ dptLink, setView }) => {
+        const Beranda = ({ dptLink, setView, galeriFoto }) => {
+            const [currentImg, setCurrentImg] = useState(0);
+
+            // Efek geser otomatis untuk galeri
+            useEffect(() => {
+                if (galeriFoto && galeriFoto.length > 1) {
+                    const timer = setInterval(() => {
+                        setCurrentImg((prev) => (prev + 1) % galeriFoto.length);
+                    }, 4000);
+                    return () => clearInterval(timer);
+                }
+            }, [galeriFoto]);
+
             return (
                 <div className="animate-fade-in">
                     <section className="relative bg-[#4A0E18] text-[#F8F7F3] overflow-hidden min-h-[85vh] flex items-center pt-20">
-                        {/* Pattern Background */}
+                        {/* Latar Belakang Pola */}
                         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
                         <div className="absolute inset-0 bg-gradient-to-r from-[#4A0E18] via-[#4A0E18]/90 to-transparent"></div>
                         
                         <div className="container mx-auto px-6 relative z-10 py-20">
-                            <div className="max-w-3xl">
-                                <div className="inline-block border border-[#C9A227]/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm bg-black/10">
-                                    <span className="text-[#C9A227] text-sm font-medium tracking-widest uppercase">Portal Resmi Panitia Pemilihan Tingkat Desa</span>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                                {/* Kolom Kiri: Teks */}
+                                <div className="max-w-2xl">
+                                    <div className="inline-block border border-[#C9A227]/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm bg-black/10">
+                                        <span className="text-[#C9A227] text-xs md:text-sm font-medium tracking-widest uppercase">Portal Resmi Panitia Pemilihan Tingkat Desa</span>
+                                    </div>
+                                    <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-4 drop-shadow-lg">
+                                        PEMILIHAN <br className="hidden md:block"/> KEPALA DESA <br className="hidden md:block"/> <span className="text-[#C9A227]">AIR NYATOH</span>
+                                    </h1>
+                                    <h2 className="text-2xl md:text-3xl font-serif text-white/90 mb-6">TAHUN 2026</h2>
+                                    <p className="text-lg md:text-xl text-[#F8F7F3]/80 mb-10 border-l-4 border-[#C9A227] pl-4">
+                                        Portal resmi untuk memperoleh informasi, transparansi, dan perkembangan tahapan Pemilihan Kepala Desa Air Nyatoh Tahun 2026.
+                                    </p>
+                                    <div className="flex flex-col sm:flex-row gap-4">
+                                        <button onClick={() => setView('informasi')} className="bg-[#C9A227] text-[#4A0E18] font-bold py-3 px-8 rounded-lg hover:bg-yellow-500 transition-colors shadow-[0_4px_14px_0_rgba(201,162,39,0.39)] flex items-center justify-center gap-2">
+                                            LIHAT INFORMASI <i className="fa-solid fa-circle-info"></i>
+                                        </button>
+                                        <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-transparent border-2 border-[#C9A227] text-[#C9A227] font-bold py-3 px-8 rounded-lg hover:bg-[#C9A227]/10 transition-colors flex items-center justify-center gap-2">
+                                            CEK DPT <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                                        </a>
+                                    </div>
                                 </div>
-                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-4 drop-shadow-lg">
-                                    PEMILIHAN <br className="hidden md:block"/> KEPALA DESA <br className="hidden md:block"/> <span className="text-[#C9A227]">AIR NYATOH</span>
-                                </h1>
-                                <h2 className="text-2xl md:text-3xl font-serif text-white/90 mb-6">TAHUN 2026</h2>
-                                <p className="text-lg md:text-xl text-[#F8F7F3]/80 mb-10 max-w-2xl border-l-4 border-[#C9A227] pl-4">
-                                    Portal resmi untuk memperoleh informasi, transparansi, dan perkembangan tahapan Pemilihan Kepala Desa Air Nyatoh Tahun 2026.
-                                </p>
-                                <div className="flex flex-col sm:flex-row gap-4">
-                                    <button onClick={() => setView('informasi')} className="bg-[#C9A227] text-[#4A0E18] font-bold py-3 px-8 rounded-lg hover:bg-yellow-500 transition-colors shadow-[0_4px_14px_0_rgba(201,162,39,0.39)] flex items-center justify-center gap-2">
-                                        LIHAT INFORMASI <i className="fa-solid fa-circle-info"></i>
-                                    </button>
-                                    <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-transparent border-2 border-[#C9A227] text-[#C9A227] font-bold py-3 px-8 rounded-lg hover:bg-[#C9A227]/10 transition-colors flex items-center justify-center gap-2">
-                                        CEK DPT <i className="fa-solid fa-arrow-up-right-from-square"></i>
-                                    </a>
+
+                                {/* Kolom Kanan: Galeri Dokumentasi */}
+                                <div className="relative w-full h-[300px] md:h-[450px] bg-white/5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group flex items-center justify-center">
+                                    {galeriFoto && galeriFoto.length > 0 ? (
+                                        <>
+                                            {galeriFoto.map((foto, idx) => (
+                                                <div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${currentImg === idx ? 'opacity-100' : 'opacity-0'}`}>
+                                                    <img src={foto} alt={`Dokumentasi ${idx + 1}`} className="w-full h-full object-cover" />
+                                                </div>
+                                            ))}
+                                            
+                                            {galeriFoto.length > 1 && (
+                                                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+                                                    {galeriFoto.map((_, idx) => (
+                                                        <button 
+                                                            key={idx} 
+                                                            onClick={() => setCurrentImg(idx)} 
+                                                            className={`w-3 h-3 rounded-full transition-all ${currentImg === idx ? 'bg-[#C9A227] w-6' : 'bg-white/50 hover:bg-white'}`}
+                                                        ></button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </>
+                                    ) : (
+                                        <div className="text-center p-6">
+                                            <i className="fa-solid fa-images text-6xl text-white/20 mb-4 block"></i>
+                                            <p className="text-white/50 font-medium">Galeri Dokumentasi Kosong</p>
+                                            <p className="text-white/30 text-sm mt-2">Silakan unggah foto melalui Dasbor Admin</p>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    {}
                     <section className="bg-[#6B1725] py-10 border-b-4 border-[#C9A227]">
                         <div className="container mx-auto px-6">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#C9A227]/30">
@@ -147,7 +187,6 @@
                         </div>
                     </section>
 
-                    {}
                     <section className="py-20 bg-[#F8F7F3]">
                         <div className="container mx-auto px-6">
                             <SectionTitle title="Akses Cepat Informasi" subtitle="Layanan & Data" />
@@ -157,7 +196,7 @@
                                     { title: "Jadwal & Tahapan", icon: "fa-calendar-days", view: "informasi", tab: "jadwal", desc: "Pantau waktu pelaksanaan tahapan" },
                                     { title: "Daftar Calon", icon: "fa-users", view: "informasi", tab: "calon", desc: "Profil dan visi misi kandidat" },
                                     { title: "Informasi TPS", icon: "fa-location-dot", view: "informasi", tab: "tps", desc: "Lokasi dan wilayah pemilih" },
-                                    { title: "Pengumuman", icon: "fa-bullhorn", view: "publikasi", tab: null, desc: "Informasi terbaru dari panitia" },
+                                    { title: "Hasil Suara", icon: "fa-chart-column", view: "informasi", tab: "hasil", desc: "Hitung cepat hasil pemilihan" },
                                     { title: "Cek DPT", icon: "fa-magnifying-glass", link: dptLink, desc: "Cek status hak pilih Anda" },
                                     { title: "Pengaduan", icon: "fa-circle-exclamation", view: "pengaduan", tab: null, desc: "Sampaikan laporan & masukan" },
                                 ].map((item, idx) => (
@@ -180,7 +219,6 @@
                         </div>
                     </section>
 
-                    {}
                     <section className="py-16 bg-white border-y border-gray-200">
                         <div className="container mx-auto px-6">
                             <div className="bg-[#4A0E18] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row items-center justify-between p-8 md:p-12 max-w-5xl mx-auto">
@@ -203,7 +241,6 @@
                         </div>
                     </section>
 
-                    {}
                     <section className="py-20 bg-[#F8F7F3]">
                         <div className="container mx-auto px-6">
                             <SectionTitle title="Tahapan Pemilihan" subtitle="Progres" />
@@ -268,7 +305,6 @@
                     <div className="container mx-auto px-4 md:px-6 max-w-6xl">
                         <SectionTitle title="Pusat Informasi" subtitle="Data Pemilihan" />
 
-                        {/* Navigasi Tab */}
                         <div className="flex overflow-x-auto hide-scrollbar border-b-2 border-gray-200 mb-8 pb-px">
                             <div className="flex space-x-2 md:space-x-8 min-w-max px-2">
                                 {tabs.map(tab => (
@@ -287,9 +323,7 @@
                             </div>
                         </div>
 
-                        {}
                         <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
-                            
                             {activeTab === 'jadwal' && (
                                 <div className="animate-fade-in">
                                     <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
@@ -417,12 +451,11 @@
 
             const handleLogin = (e) => {
                 e.preventDefault();
-                // Simulasi autentikasi statis
                 if (username === 'admin' && password === 'admin123') {
                     setError('');
                     onLogin();
                 } else {
-                    setError('Username atau password salah!');
+                    setError('Nama pengguna atau kata sandi salah!');
                 }
             };
 
@@ -433,7 +466,7 @@
                             <i className="fa-solid fa-shield-halved text-3xl text-[#4A0E18]"></i>
                         </div>
                         
-                        <h2 className="text-2xl font-serif font-bold text-center text-[#4A0E18] mb-1">Login Admin Portal</h2>
+                        <h2 className="text-2xl font-serif font-bold text-center text-[#4A0E18] mb-1">Masuk Dasbor Admin</h2>
                         <p className="text-gray-500 text-center text-sm mb-8">Pilkades Air Nyatoh 2026</p>
 
                         {error && (
@@ -444,14 +477,14 @@
 
                         <form onSubmit={handleLogin} className="space-y-5">
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Username (admin)</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Nama Pengguna (admin)</label>
                                 <div className="relative">
                                     <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin" />
                                     <i className="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Password (admin123)</label>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Kata Sandi (admin123)</label>
                                 <div className="relative">
                                     <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin123" />
                                     <i className="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i>
@@ -463,14 +496,14 @@
                         </form>
 
                         <button onClick={onCancel} className="w-full mt-6 text-sm text-gray-500 hover:text-[#4A0E18] transition-colors">
-                            &larr; Kembali ke Website
+                            &larr; Kembali ke Situs Web
                         </button>
                     </div>
                 </div>
             );
         };
 
-        const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData }) => {
+        const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData, galeriFoto, setGaleriFoto }) => {
             const [activeMenu, setActiveMenu] = useState('dashboard');
             const [tempLink, setTempLink] = useState(dptLink);
             const [saved, setSaved] = useState(false);
@@ -489,6 +522,24 @@
                 setQuickCountData(newData);
             };
 
+            // Fungsi Unggah Foto menggunakan FileReader
+            const handleUploadFoto = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        setGaleriFoto(prev => [...prev, reader.result]);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            };
+
+            const hapusFoto = (index) => {
+                const fotoBaru = [...galeriFoto];
+                fotoBaru.splice(index, 1);
+                setGaleriFoto(fotoBaru);
+            };
+
             return (
                 <div className="min-h-screen bg-gray-100 flex animate-fade-in fixed inset-0 z-[100]">
                     {/* Sidebar Admin */}
@@ -499,14 +550,15 @@
                             </div>
                             <div>
                                 <h2 className="font-bold text-sm tracking-widest">PANITIA DESA</h2>
-                                <p className="text-xs text-[#C9A227]">Admin Panel</p>
+                                <p className="text-xs text-[#C9A227]">Panel Admin</p>
                             </div>
                         </div>
                         <nav className="flex-1 py-6 space-y-2 px-4">
                             {[
-                                { id: 'dashboard', label: 'Dashboard', icon: "fa-chart-pie" },
-                                { id: 'quickcount', label: 'Hitung Cepat (5 Calon)', icon: "fa-chart-column" },
-                                { id: 'pengaturan', label: 'Pengaturan Link DPT', icon: "fa-gear" },
+                                { id: 'dashboard', label: 'Ringkasan', icon: "fa-chart-pie" },
+                                { id: 'galeri', label: 'Galeri Dokumentasi', icon: "fa-images" },
+                                { id: 'quickcount', label: 'Hitung Cepat', icon: "fa-chart-column" },
+                                { id: 'pengaturan', label: 'Pengaturan Tautan DPT', icon: "fa-gear" },
                             ].map(menu => (
                                 <button 
                                     key={menu.id}
@@ -519,7 +571,7 @@
                         </nav>
                         <div className="p-4 border-t border-white/10">
                             <button onClick={() => setAdminMode(false)} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-300 hover:text-white hover:bg-red-900/50 rounded-xl transition-colors font-medium">
-                                <i className="fa-solid fa-right-from-bracket w-5"></i> Keluar Dashboard
+                                <i className="fa-solid fa-right-from-bracket w-5"></i> Keluar Dasbor
                             </button>
                         </div>
                     </aside>
@@ -533,20 +585,20 @@
                                     <p className="text-gray-500 text-sm">Sistem Manajemen Portal Informasi Pilkades 2026</p>
                                 </div>
                                 <div className="flex items-center gap-4 mb-6">
-    <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center overflow-hidden">
-        <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
-    </div>
-    <div>
-        <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
-    </div>
-</div>
+                                    <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center overflow-hidden text-[#4A0E18]">
+                                        <i className="fa-solid fa-user-tie text-xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
+                                    </div>
+                                </div>
                             </header>
 
                             {activeMenu === 'dashboard' && (
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                     {[
                                         { label: 'Total Calon', val: '5', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-                                        { label: 'Total TPS', val: '4', color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
+                                        { label: 'Foto Galeri', val: galeriFoto.length, color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
                                         { label: 'Pengaduan', val: '0', color: 'text-[#C9A227]', bg: 'bg-yellow-50', border: 'border-yellow-100' },
                                         { label: 'Pengunjung', val: '1.2K', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
                                     ].map((stat, i) => (
@@ -558,9 +610,46 @@
                                 </div>
                             )}
 
+                            {activeMenu === 'galeri' && (
+                                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animate-fade-in">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri Dokumentasi</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda.</p>
+                                    
+                                    <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                                        <label className="block text-sm font-bold text-gray-700 mb-4 text-center">Pilih Foto Untuk Diunggah</label>
+                                        <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            onChange={handleUploadFoto} 
+                                            className="block w-full max-w-sm mx-auto text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#4A0E18] file:text-white hover:file:bg-[#6B1725] cursor-pointer" 
+                                        />
+                                    </div>
+
+                                    <h4 className="font-bold text-gray-800 mb-4">Foto Tersimpan ({galeriFoto.length})</h4>
+                                    {galeriFoto.length > 0 ? (
+                                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                            {galeriFoto.map((foto, idx) => (
+                                                <div key={idx} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-video bg-gray-100">
+                                                    <img src={foto} alt={`Galeri ${idx}`} className="w-full h-full object-cover" />
+                                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                        <button onClick={() => hapusFoto(idx)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-600 shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
+                                                            <i className="fa-solid fa-trash"></i> Hapus
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
+                                            <p className="text-gray-500">Belum ada foto yang diunggah.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {activeMenu === 'quickcount' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animate-fade-in">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat (Quick Count) - 5 Calon</h3>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat (Quick Count)</h3>
                                     <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon. Perubahan akan langsung terlihat pada halaman publik tab "Hitung Cepat".</p>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -588,12 +677,12 @@
 
                             {activeMenu === 'pengaturan' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl animate-fade-in">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Pengaturan URL Eksternal DPT</h3>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Pengaturan Tautan Eksternal DPT</h3>
                                     <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Ubah tautan sistem DPT yang akan diakses masyarakat saat menekan tombol "Cek DPT".</p>
                                     
                                     <form onSubmit={handleSaveLink} className="space-y-5">
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 mb-2">URL Website Cek DPT Resmi</label>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">Tautan Situs Web Cek DPT Resmi</label>
                                             <input 
                                                 type="url" value={tempLink} onChange={(e) => setTempLink(e.target.value)} required
                                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50"
@@ -619,12 +708,13 @@
             const [isScrolled, setIsScrolled] = useState(false);
             const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
             
-            // State Global Aplikasi
             const [dptLink, setDptLink] = useState('https://pptairnyatoh-spec.github.io/cekdptpilkadesairnyatoh');
             const [isAdminMode, setAdminMode] = useState(false);
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             
-            // Data 5 Calon Kades
+            // State untuk menampung gambar galeri dokumentasi
+            const [galeriFoto, setGaleriFoto] = useState([]);
+            
             const [quickCountData, setQuickCountData] = useState([
                 { id: 1, nama: "Calon No. Urut 1", suara: 0, warna: "#4A0E18" },
                 { id: 2, nama: "Calon No. Urut 2", suara: 0, warna: "#6B1725" },
@@ -653,20 +743,23 @@
             return (
                 <div className="font-sans flex flex-col min-h-screen text-[#241C1D] bg-[#F8F7F3]">
                     
-                    {/* Logika Sistem Admin */}
                     {isAdminMode && (
                         !isLoggedIn ? 
                         <AdminLogin onLogin={() => setIsLoggedIn(true)} onCancel={() => setAdminMode(false)} /> :
-                        <AdminDashboard setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} quickCountData={quickCountData} setQuickCountData={setQuickCountData} />
+                        <AdminDashboard 
+                            setAdminMode={setAdminMode} 
+                            dptLink={dptLink} setDptLink={setDptLink} 
+                            quickCountData={quickCountData} setQuickCountData={setQuickCountData}
+                            galeriFoto={galeriFoto} setGaleriFoto={setGaleriFoto}
+                        />
                     )}
 
-                    {/* Navigasi / Header Utama */}
                     <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#4A0E18] shadow-lg py-3' : 'bg-[#4A0E18] py-5 border-b border-white/10'}`}>
                         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
                             <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('beranda')}>
-                                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
-    <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
-</div>
+                                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform overflow-hidden text-[#4A0E18]">
+                                    <i className="fa-solid fa-users text-xl"></i>
+                                </div>
                                 <div className="flex flex-col text-white">
                                     <span className="text-[10px] md:text-xs font-bold tracking-widest text-[#C9A227]">PANITIA PEMILIHAN</span>
                                     <span className="text-sm md:text-base font-bold font-serif leading-tight">DESA AIR NYATOH</span>
@@ -690,7 +783,6 @@
                             </button>
                         </div>
                         
-                        {/* Mobile Menu Dropdown */}
                         {isMobileMenuOpen && (
                             <div className="md:hidden absolute top-full left-0 w-full bg-[#4A0E18] border-t border-white/10 shadow-xl py-2 flex flex-col animate-slide-up">
                                 {menuItems.map(item => (
@@ -705,13 +797,11 @@
                         )}
                     </header>
 
-                    {/* Body Routing */}
                     <main className="flex-grow">
-                        {view === 'beranda' && <Beranda dptLink={dptLink} setView={navigate} />}
+                        {view === 'beranda' && <Beranda dptLink={dptLink} setView={navigate} galeriFoto={galeriFoto} />}
                         {view === 'informasi' && <Informasi dptLink={dptLink} quickCountData={quickCountData} />}
                     </main>
 
-                    {/* Footer Utama */}
                     <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
                         <div className="container mx-auto px-6 relative z-10">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
@@ -728,9 +818,8 @@
                                         Penyelenggara independen Pemilihan Kepala Desa Air Nyatoh Tahun 2026. Berkomitmen mewujudkan pemilihan yang transparan, jujur, dan berintegritas.
                                     </p>
                                     
-                                    {/* Tombol Rahasia Untuk Membuka Admin */}
                                     <button onClick={() => setAdminMode(true)} className="text-xs text-[#C9A227] hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-wider py-2 px-4 rounded-lg bg-black/20 border border-white/10 cursor-pointer">
-                                        <i className="fa-solid fa-lock"></i> Login Dashboard Admin
+                                        <i className="fa-solid fa-lock"></i> Masuk Dasbor Admin
                                     </button>
                                 </div>
                             </div>
