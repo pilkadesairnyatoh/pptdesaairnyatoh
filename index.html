@@ -18,8 +18,12 @@
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    <!-- Babel untuk menerjemahkan JSX secara langsung di browser -->
+    <!-- Babel untuk menerjemahkan JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Firebase SDK (Versi 8 agar mudah terintegrasi langsung di HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
         body { 
@@ -43,6 +47,26 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        // ==========================================
+        // KONFIGURASI FIREBASE (GANTI DENGAN MILIK ANDA)
+        // ==========================================
+        const firebaseConfig = {
+  apiKey: "AIzaSyBr2RivjMXiHff3-ycLq2mM_K-n6FoerkY",
+  authDomain: "webpptdesaairnyatoh.firebaseapp.com",
+  projectId: "webpptdesaairnyatoh",
+  storageBucket: "webpptdesaairnyatoh.firebasestorage.app",
+  messagingSenderId: "451197145949",
+  appId: "1:451197145949:web:6f7d1357f5fbc377b90eb4",
+  measurementId: "G-KB09C7773X"
+};
+
+        // Inisialisasi Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+        // ==========================================
+
         const { useState, useEffect } = React;
 
         const TAHAPAN_TIMELINE = [
@@ -90,7 +114,6 @@
         const Beranda = ({ dptLink, setView, galeriFoto }) => {
             const [currentImg, setCurrentImg] = useState(0);
 
-            // Slideshow galeri otomatis berjalan jika ada lebih dari 1 foto
             useEffect(() => {
                 if (galeriFoto && galeriFoto.length > 1) {
                     const timer = setInterval(() => {
@@ -130,13 +153,13 @@
                                     </div>
                                 </div>
 
-                                {/* KOLOM KANAN: GALERI DOKUMENTASI */}
+                                {/* KOLOM KANAN: GALERI DOKUMENTASI FIREBASE */}
                                 <div className="relative w-full h-[350px] md:h-[450px] bg-white/5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group flex items-center justify-center">
                                     {galeriFoto && galeriFoto.length > 0 ? (
                                         <>
                                             {galeriFoto.map((foto, idx) => (
-                                                <div key={idx} className={`absolute inset-0 transition-opacity duration-1000 ${currentImg === idx ? 'opacity-100' : 'opacity-0'}`}>
-                                                    <img src={foto} alt={`Dokumentasi ${idx + 1}`} className="w-full h-full object-cover" />
+                                                <div key={foto.id} className={`absolute inset-0 transition-opacity duration-1000 ${currentImg === idx ? 'opacity-100' : 'opacity-0'}`}>
+                                                    <img src={foto.url} alt={`Dokumentasi ${idx + 1}`} className="w-full h-full object-cover" />
                                                 </div>
                                             ))}
                                             {galeriFoto.length > 1 && (
@@ -502,7 +525,7 @@
             );
         };
 
-        const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData, galeriFoto, setGaleriFoto }) => {
+        const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData, galeriFoto }) => {
             const [activeMenu, setActiveMenu] = useState('dashboard');
             const [tempLink, setTempLink] = useState(dptLink);
             const [saved, setSaved] = useState(false);
@@ -521,23 +544,25 @@
                 setQuickCountData(newData);
             };
 
-            // FUNGSI UNGGAH FOTO KE LOCAL STORAGE
+            // FUNGSI UNGGAH FOTO KE FIREBASE
             const handleUploadFoto = (e) => {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
                     reader.onloadend = () => {
-                        setGaleriFoto(prev => [...prev, reader.result]);
+                        // Push gambar (format base64) ke Firebase Database
+                        database.ref('galeriPilkades').push({
+                            url: reader.result
+                        });
                     };
                     reader.readAsDataURL(file);
                 }
             };
 
-            const hapusFoto = (index) => {
+            // FUNGSI HAPUS FOTO DARI FIREBASE
+            const hapusFoto = (id) => {
                 if(window.confirm("Yakin ingin menghapus foto ini?")) {
-                    const fotoBaru = [...galeriFoto];
-                    fotoBaru.splice(index, 1);
-                    setGaleriFoto(fotoBaru);
+                    database.ref('galeriPilkades/' + id).remove();
                 }
             };
 
@@ -613,8 +638,8 @@
 
                             {activeMenu === 'galeri' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animate-fade-in">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri Dokumentasi</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda.</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri Dokumentasi (Firebase)</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda. Data tersimpan di server Firebase.</p>
                                     
                                     <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                                         <label className="block text-sm font-bold text-gray-700 mb-4 text-center">Pilih Foto Untuk Diunggah</label>
@@ -627,11 +652,11 @@
                                     <h4 className="font-bold text-gray-800 mb-4">Foto Tersimpan ({galeriFoto.length})</h4>
                                     {galeriFoto.length > 0 ? (
                                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                            {galeriFoto.map((foto, idx) => (
-                                                <div key={idx} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-video bg-gray-100">
-                                                    <img src={foto} alt={`Galeri ${idx}`} className="w-full h-full object-cover" />
+                                            {galeriFoto.map((foto) => (
+                                                <div key={foto.id} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-video bg-gray-100">
+                                                    <img src={foto.url} alt={`Galeri`} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <button onClick={() => hapusFoto(idx)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-600 shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
+                                                        <button onClick={() => hapusFoto(foto.id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-600 shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
                                                             <i className="fa-solid fa-trash"></i> Hapus
                                                         </button>
                                                     </div>
@@ -640,7 +665,7 @@
                                         </div>
                                     ) : (
                                         <div className="text-center py-12 bg-gray-50 rounded-xl border border-gray-200">
-                                            <p className="text-gray-500">Belum ada foto yang diunggah.</p>
+                                            <p className="text-gray-500">Belum ada foto yang diunggah ke Firebase.</p>
                                         </div>
                                     )}
                                 </div>
@@ -712,27 +737,31 @@
             const [isAdminMode, setAdminMode] = useState(false);
             const [isLoggedIn, setIsLoggedIn] = useState(false);
             
-            // MENGAMBIL DATA GALERI DARI LOCAL STORAGE
-            const [galeriFoto, setGaleriFoto] = useState(() => {
-                const fotoTersimpan = localStorage.getItem('galeriPilkadesAirNyatoh');
-                if (fotoTersimpan) {
-                    try {
-                        return JSON.parse(fotoTersimpan);
-                    } catch (e) {
-                        return [];
-                    }
-                }
-                return [];
-            });
+            // State Galeri Foto (Data dari Firebase)
+            const [galeriFoto, setGaleriFoto] = useState([]);
             
-            // MENYIMPAN DATA GALERI KE LOCAL STORAGE SECARA OTOMATIS
+            // MENGAMBIL DATA GALERI DARI FIREBASE SAAT APLIKASI DIMUAT
             useEffect(() => {
-                try {
-                    localStorage.setItem('galeriPilkadesAirNyatoh', JSON.stringify(galeriFoto));
-                } catch (e) {
-                    alert("Peringatan: Ukuran foto terlalu besar. Gagal menyimpan secara permanen.");
-                }
-            }, [galeriFoto]);
+                const galeriRef = database.ref('galeriPilkades');
+                
+                // Mendengarkan perubahan data secara realtime
+                galeriRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    if (data) {
+                        // Mengubah object dari Firebase menjadi array
+                        const fotoArray = Object.keys(data).map(key => ({
+                            id: key,
+                            url: data[key].url
+                        }));
+                        setGaleriFoto(fotoArray);
+                    } else {
+                        setGaleriFoto([]);
+                    }
+                });
+
+                // Bersihkan pendengar saat komponen ditutup
+                return () => galeriRef.off();
+            }, []);
             
             // Data 5 Calon Kades
             const [quickCountData, setQuickCountData] = useState([
@@ -770,7 +799,7 @@
                         <AdminDashboard 
                             setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} 
                             quickCountData={quickCountData} setQuickCountData={setQuickCountData} 
-                            galeriFoto={galeriFoto} setGaleriFoto={setGaleriFoto} 
+                            galeriFoto={galeriFoto} 
                         />
                     )}
 
