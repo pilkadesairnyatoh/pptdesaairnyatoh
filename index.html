@@ -41,12 +41,6 @@ const TAHAPAN_LENGKAP = [
   { id: 14, tahap: "PELANTIKAN", nama: "Pengesahan & Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", status: "mendatang" },
 ];
 
-const PUBLIKASI_DATA = [
-  { id: 1, kategori: "Pengumuman", judul: "Pendaftaran Bakal Calon Kepala Desa Resmi Dibuka", tanggal: "6 Ags 2026", ringkasan: "Panitia Pemilihan Tingkat Desa Air Nyatoh resmi membuka pendaftaran bakal calon Kepala Desa mulai tanggal 6 hingga 19 Agustus 2026. Persyaratan dapat diunduh pada portal ini." },
-  { id: 2, kategori: "Berita", judul: "Rapat Koordinasi Persiapan Pilkades Bersama PPTD", tanggal: "4 Ags 2026", ringkasan: "Panitia telah melaksanakan rapat pleno penetapan tahapan bersama BPD dan tokoh masyarakat di Balai Desa Air Nyatoh." },
-  { id: 3, kategori: "Regulasi", judul: "Peraturan Bupati Tentang Pedoman Pelaksanaan Pilkades", tanggal: "1 Jul 2026", ringkasan: "Dokumen resmi Peraturan Bupati Kabupaten Bangka Barat sebagai landasan hukum pelaksanaan Pemilihan Kepala Desa serentak." },
-];
-
 const SectionTitle = ({ title, subtitle, centered = true }) => (
   <div className={`mb-10 ${centered ? 'text-center' : 'text-left'}`}>
     {subtitle && <p className="text-[#C9A227] font-semibold tracking-wider text-sm uppercase mb-2">{subtitle}</p>}
@@ -58,7 +52,6 @@ const SectionTitle = ({ title, subtitle, centered = true }) => (
 const Beranda = ({ dptLink, setView }) => {
   return (
     <div className="animate-in fade-in duration-500">
-      {/* Hero Section */}
       <section className="relative bg-[#4A0E18] text-[#F8F7F3] overflow-hidden min-h-[80vh] flex items-center">
         <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
         <div className="absolute inset-0 bg-gradient-to-r from-[#4A0E18] via-[#4A0E18]/90 to-transparent"></div>
@@ -87,7 +80,6 @@ const Beranda = ({ dptLink, setView }) => {
         </div>
       </section>
 
-      {/* Values */}
       <section className="bg-[#6B1725] py-10 border-b-4 border-[#C9A227]">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#C9A227]/30">
@@ -110,7 +102,7 @@ const Beranda = ({ dptLink, setView }) => {
         </div>
       </section>
 
-      {/* Quick Access */}
+      {}
       <section className="py-20 bg-[#F8F7F3]">
         <div className="container mx-auto px-6">
           <SectionTitle title="Akses Cepat Informasi" subtitle="Layanan & Data" />
@@ -143,7 +135,6 @@ const Beranda = ({ dptLink, setView }) => {
         </div>
       </section>
 
-      {/* Cek DPT Banner */}
       <section className="py-16 bg-white border-y border-gray-200">
         <div className="container mx-auto px-6">
           <div className="bg-[#4A0E18] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row items-center justify-between p-8 md:p-12 max-w-5xl mx-auto">
@@ -166,7 +157,7 @@ const Beranda = ({ dptLink, setView }) => {
         </div>
       </section>
 
-      {/* Timeline */}
+      {}
       <section className="py-20 bg-[#F8F7F3]">
         <div className="container mx-auto px-6">
           <SectionTitle title="Tahapan Pemilihan" subtitle="Progres" />
@@ -236,7 +227,6 @@ const Profil = () => {
         <SectionTitle title="Profil Panitia Pemilihan" subtitle="Tentang Kami" />
 
         <div className="max-w-4xl mx-auto space-y-12">
-          {/* Dasar Pembentukan */}
           <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
              <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A227]/5 rounded-bl-full"></div>
             <h3 className="text-2xl font-serif font-bold text-[#4A0E18] mb-6 flex items-center gap-3">
@@ -252,7 +242,6 @@ const Profil = () => {
             </div>
           </div>
 
-          {/* Struktur Panitia */}
           <div>
             <h3 className="text-2xl font-serif font-bold text-[#4A0E18] mb-8 text-center">Struktur Kepanitiaan</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
@@ -268,7 +257,6 @@ const Profil = () => {
             </div>
           </div>
 
-          {/* Sekretariat */}
           <div className="bg-[#4A0E18] text-[#F8F7F3] p-8 md:p-10 rounded-2xl shadow-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 opacity-10 pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
             <h3 className="text-2xl font-serif font-bold mb-6 flex items-center gap-3 relative z-10 text-white">
@@ -292,61 +280,6 @@ const Profil = () => {
               </div>
             </div>
           </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Publikasi = () => {
-  const [filter, setFilter] = useState('Semua');
-  const categories = ['Semua', 'Berita', 'Pengumuman', 'Regulasi'];
-  const filteredData = filter === 'Semua' ? PUBLIKASI_DATA : PUBLIKASI_DATA.filter(item => item.kategori === filter);
-
-  return (
-    <div className="animate-in fade-in duration-500 bg-[#F8F7F3] min-h-screen py-20">
-      <div className="container mx-auto px-6 max-w-6xl">
-        <SectionTitle title="Pusat Publikasi" subtitle="Informasi & Dokumen" />
-
-        <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
-          <div className="flex flex-wrap gap-2">
-            {categories.map(cat => (
-              <button 
-                key={cat}
-                onClick={() => setFilter(cat)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === cat ? 'bg-[#4A0E18] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-          <div className="relative w-full md:w-64">
-            <input type="text" placeholder="Cari publikasi..." className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-300 focus:outline-none focus:border-[#C9A227] focus:ring-1 focus:ring-[#C9A227]" />
-            <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredData.map(item => (
-            <div key={item.id} className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all border border-gray-100 flex flex-col h-full group">
-              <div className="h-48 overflow-hidden relative bg-[#4A0E18]/5 flex items-center justify-center">
-                <FileText size={48} className="text-[#C9A227]/40 group-hover:scale-110 transition-transform duration-500" />
-                <span className="absolute top-4 left-4 z-20 bg-[#C9A227] text-[#4A0E18] text-xs font-bold px-3 py-1 rounded-full shadow-md">
-                  {item.kategori}
-                </span>
-              </div>
-              <div className="p-6 flex flex-col flex-grow">
-                <div className="text-xs text-gray-500 flex items-center gap-1.5 mb-3">
-                  <Calendar size={14} /> {item.tanggal}
-                </div>
-                <h3 className="font-bold text-lg text-[#4A0E18] mb-3 line-clamp-2 leading-snug">{item.judul}</h3>
-                <p className="text-gray-600 text-sm mb-4 line-clamp-3 flex-grow">{item.ringkasan}</p>
-                <button className="text-[#C9A227] font-bold text-sm flex items-center gap-1 hover:text-yellow-600 transition-colors mt-auto w-fit">
-                  Baca Selengkapnya <ExternalLink size={14} />
-                </button>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     </div>
@@ -435,7 +368,7 @@ const Informasi = ({ initialTab, dptLink, quickCountData }) => {
                 <Users className="w-10 h-10 text-gray-300" />
               </div>
               <h3 className="text-xl font-bold text-gray-600 mb-2">Penetapan Calon Belum Dilakukan</h3>
-              <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon (24 September 2026) selesai dilaksanakan.</p>
+              <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon selesai dilaksanakan.</p>
             </div>
           )}
 
@@ -458,51 +391,6 @@ const Informasi = ({ initialTab, dptLink, quickCountData }) => {
                   </div>
                 ))}
               </div>
-              <div className="mt-8 p-5 bg-yellow-50 border border-yellow-200 rounded-xl text-sm text-yellow-800 flex gap-3 shadow-sm">
-                <Info className="shrink-0 mt-0.5" size={20} />
-                <p className="leading-relaxed">Pastikan Anda mencoblos di TPS yang sesuai dengan yang tertera pada Surat Undangan Pemilih atau cek lokasi Anda melalui menu <a href={dptLink} target="_blank" className="font-bold underline text-[#4A0E18]">Cek DPT</a>.</p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'regulasi' && (
-            <div className="animate-in fade-in duration-500">
-               <ul className="space-y-4">
-                 {[
-                   "Undang-Undang Nomor 6 Tahun 2014 tentang Desa",
-                   "Peraturan Menteri Dalam Negeri Nomor 112 Tahun 2014 tentang Pemilihan Kepala Desa",
-                   "Peraturan Daerah Kabupaten Bangka Barat tentang Tata Cara Pemilihan Kepala Desa",
-                   "Peraturan Bupati Bangka Barat tentang Pedoman Teknis Pelaksanaan Pilkades"
-                 ].map((reg, i) => (
-                   <li key={i} className="flex items-start gap-4 p-5 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors bg-white">
-                     <FileText className="text-[#6B1725] shrink-0 mt-0.5" size={20} />
-                     <span className="text-gray-700 leading-snug font-medium">{reg}</span>
-                   </li>
-                 ))}
-               </ul>
-            </div>
-          )}
-
-          {activeTab === 'faq' && (
-            <div className="animate-in fade-in duration-500 space-y-6">
-               <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
-                <Info className="text-[#C9A227]" size={24} /> Pertanyaan Umum (FAQ)
-              </h3>
-              {[
-                { q: "Siapa saja yang berhak memilih dalam Pilkades?", a: "Penduduk desa Air Nyatoh yang pada hari pemungutan suara telah berumur 17 (tujuh belas) tahun atau sudah/pernah kawin, memiliki KTP-el atau Suket, dan terdaftar dalam Daftar Pemilih Tetap (DPT)." },
-                { q: "Bagaimana jika nama saya tidak ada di Daftar Pemilih?", a: "Jika masih dalam masa pengumuman dan perbaikan DPS, segera laporkan ke Panitia Pemilihan Tingkat Desa dengan membawa fotokopi KTP dan KK. Jika DPT sudah ditetapkan, pemilih yang tidak terdaftar tidak dapat menggunakan hak suaranya." },
-                { q: "Kapan hari pemungutan suara dilaksanakan?", a: "Pemungutan suara dijadwalkan secara serentak pada tanggal 18 November 2026 di TPS masing-masing yang telah ditetapkan." }
-              ].map((faq, i) => (
-                <div key={i} className="border border-gray-200 rounded-xl p-6 bg-white hover:border-gray-300 transition-colors">
-                  <h4 className="font-bold text-[#4A0E18] mb-3 flex items-start gap-3 text-lg">
-                    <span className="text-[#C9A227] font-serif font-black text-2xl leading-none">Q.</span> {faq.q}
-                  </h4>
-                  <div className="text-gray-600 text-sm leading-relaxed pl-8 relative">
-                    <span className="absolute left-0 top-0 font-serif font-black text-gray-300 text-2xl leading-none">A.</span>
-                    {faq.a}
-                  </div>
-                </div>
-              ))}
             </div>
           )}
 
@@ -555,137 +443,6 @@ const Informasi = ({ initialTab, dptLink, quickCountData }) => {
   );
 };
 
-const Pengaduan = () => {
-  const [submitted, setSubmitted] = useState(false);
-  const [ticket, setTicket] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setTimeout(() => {
-      setTicket('TKT-' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0'));
-      setSubmitted(true);
-    }, 1000);
-  };
-
-  if (submitted) {
-    return (
-      <div className="animate-in zoom-in-95 duration-500 bg-[#F8F7F3] min-h-screen py-20 flex items-center justify-center px-4">
-        <div className="bg-white p-10 rounded-3xl shadow-xl max-w-lg text-center border-t-8 border-[#C9A227]">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10 text-green-600" strokeWidth={3} />
-          </div>
-          <h2 className="text-3xl font-serif font-bold text-[#4A0E18] mb-2">Pengaduan Terkirim</h2>
-          <p className="text-gray-600 mb-6 text-sm leading-relaxed">Terima kasih. Laporan Anda telah kami terima dan akan segera diverifikasi oleh tim internal panitia. Identitas Anda dirahasiakan.</p>
-          
-          <div className="bg-gray-50 p-6 rounded-2xl border border-dashed border-gray-300 mb-8">
-            <p className="text-sm text-gray-500 mb-1">Nomor Tiket Pengaduan Anda:</p>
-            <p className="text-4xl font-mono font-bold text-[#4A0E18] tracking-widest">{ticket}</p>
-            <p className="text-xs text-gray-400 mt-3">Simpan nomor tiket ini untuk melacak status laporan Anda.</p>
-          </div>
-          
-          <button onClick={() => setSubmitted(false)} className="text-[#C9A227] font-bold hover:underline">
-            Buat Laporan Baru
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="animate-in fade-in duration-500 bg-[#F8F7F3] min-h-[calc(100vh-200px)] py-10 md:py-20">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto">
-          <SectionTitle title="Layanan Pengaduan" subtitle="Partisipasi Masyarakat" />
-          
-          <div className="bg-[#6B1725] text-white p-6 rounded-xl shadow-lg mb-8 flex gap-4 items-start relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A227]/10 rounded-bl-full pointer-events-none"></div>
-            <Info className="w-8 h-8 text-[#C9A227] shrink-0 relative z-10" />
-            <div className="relative z-10">
-              <p className="text-sm leading-relaxed">
-                Panitia Pemilihan Tingkat Desa membuka ruang bagi masyarakat untuk menyampaikan pengaduan, laporan, masukan, dan informasi terkait pelaksanaan Pilkades Air Nyatoh Tahun 2026. 
-                <strong className="text-[#C9A227] block mt-1">Identitas pelapor dijamin kerahasiaannya.</strong>
-              </p>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-10">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap Sesuai KTP *</label>
-                  <input required type="text" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50" placeholder="Masukkan nama" />
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Nomor Kontak (WhatsApp) *</label>
-                  <input required type="tel" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50" placeholder="08xxxxxxxxxx" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Alamat Lengkap *</label>
-                <textarea required rows="2" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50 resize-none" placeholder="Masukkan alamat domisili"></textarea>
-              </div>
-
-              <hr className="border-gray-200 my-8" />
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Kategori Pengaduan *</label>
-                  <select required className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50">
-                    <option value="">Pilih Kategori...</option>
-                    <option>Tahapan Pemilihan</option>
-                    <option>Data Pemilih</option>
-                    <option>Pendaftaran Calon</option>
-                    <option>Kampanye</option>
-                    <option>Lainnya</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">Tanggal Kejadian (Opsional)</label>
-                  <input type="date" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Uraian Pengaduan *</label>
-                <textarea required rows="5" className="w-full px-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] focus:border-transparent outline-none bg-gray-50 resize-none" placeholder="Jelaskan secara rinci kronologi kejadian..."></textarea>
-              </div>
-
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">Upload Bukti/Dokumen (Opsional, Maks 5MB)</label>
-                <div className="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:bg-gray-50 transition-colors">
-                  <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                  <label className="cursor-pointer">
-                    <span className="text-[#4A0E18] font-bold hover:underline">Pilih File</span>
-                    <span className="text-gray-500 text-sm ml-1">atau drag and drop</span>
-                    <input type="file" className="hidden" />
-                  </label>
-                  <p className="text-xs text-gray-400 mt-1">PNG, JPG, PDF up to 5MB</p>
-                </div>
-              </div>
-
-              <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 mt-6">
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input required type="checkbox" className="mt-1 w-5 h-5 text-[#4A0E18] border-gray-300 rounded focus:ring-[#4A0E18]" />
-                  <span className="text-sm text-yellow-800 leading-relaxed">
-                    Saya menyatakan bahwa laporan ini dibuat dengan sebenar-benarnya tanpa paksaan dari pihak manapun dan saya bersedia mempertanggungjawabkannya sesuai ketentuan yang berlaku.
-                  </span>
-                </label>
-              </div>
-
-              <div className="flex justify-end pt-4">
-                <button type="submit" className="bg-[#4A0E18] text-white font-bold py-3.5 px-8 rounded-xl shadow-lg hover:bg-[#6B1725] transition-colors hover:shadow-xl flex items-center gap-2">
-                  Kirim Pengaduan <Check size={20} className="text-[#C9A227]" />
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const AdminLogin = ({ onLogin, onCancel }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -702,7 +459,7 @@ const AdminLogin = ({ onLogin, onCancel }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#4A0E18] flex items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-[#4A0E18] flex items-center justify-center p-6 relative overflow-hidden z-[100]">
       <div className="absolute inset-0 bg-gradient-to-br from-[#4A0E18] to-[#6B1725]"></div>
       <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-in zoom-in-95 duration-300">
         <div className="w-16 h-16 bg-[#C9A227] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner border-2 border-white">
@@ -766,9 +523,8 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex animate-in fade-in duration-300">
-      {/* Sidebar */}
-      <aside className="w-64 bg-[#4A0E18] text-white flex flex-col fixed h-full shadow-2xl z-20">
+    <div className="min-h-screen bg-gray-100 flex animate-in fade-in duration-300 fixed inset-0 z-[100]">
+      <aside className="w-64 bg-[#4A0E18] text-white flex flex-col h-full shadow-2xl shrink-0">
         <div className="p-6 border-b border-white/10 flex items-center gap-3">
           <div className="w-10 h-10 bg-[#C9A227] rounded-lg flex items-center justify-center text-[#4A0E18] font-bold shadow-inner">
             <Shield size={20} />
@@ -782,7 +538,6 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
           {[
             { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
             { id: 'quickcount', label: 'Hitung Cepat', icon: TrendingUp },
-            { id: 'pengaduan', label: 'Pengaduan Masuk', icon: AlertCircle },
             { id: 'pengaturan', label: 'Pengaturan Portal', icon: Settings },
           ].map(menu => {
             const MenuIcon = menu.icon;
@@ -804,10 +559,8 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-64 p-8 overflow-y-auto">
+      <main className="flex-1 p-8 overflow-y-auto">
         <div className="max-w-5xl mx-auto">
-          
           <header className="mb-8 flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
             <div>
               <h1 className="text-2xl font-bold text-gray-800 capitalize mb-1">{activeMenu.replace('-', ' ')}</h1>
@@ -819,20 +572,18 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
           </header>
 
           {activeMenu === 'dashboard' && (
-            <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 {[
-                  { label: 'Publikasi', val: '3', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-                  { label: 'Total Calon', val: '5', color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
-                  { label: 'TPS', val: '4', color: 'text-[#C9A227]', bg: 'bg-yellow-50', border: 'border-yellow-100' },
-                  { label: 'Pengaduan', val: '0', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
+                  { label: 'Total Calon', val: '5', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+                  { label: 'Total TPS', val: '4', color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
+                  { label: 'Pengaduan', val: '0', color: 'text-[#C9A227]', bg: 'bg-yellow-50', border: 'border-yellow-100' },
+                  { label: 'Pengunjung', val: '1.2K', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
                 ].map((stat, i) => (
                   <div key={i} className={`p-6 rounded-2xl shadow-sm border ${stat.bg} ${stat.border}`}>
                     <p className="text-gray-600 text-sm mb-2 font-medium">{stat.label}</p>
                     <p className={`text-4xl font-black ${stat.color}`}>{stat.val}</p>
                   </div>
                 ))}
-              </div>
             </div>
           )}
 
@@ -861,13 +612,6 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
                   </div>
                 ))}
               </div>
-              
-              <div className="mt-8 p-4 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-3">
-                <Info className="text-blue-500 shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm text-blue-800 font-bold mb-1">Total Suara Masuk: {quickCountData.reduce((a, b) => a + b.suara, 0).toLocaleString('id-ID')} suara</p>
-                </div>
-              </div>
             </div>
           )}
 
@@ -893,14 +637,6 @@ const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, set
               </form>
             </div>
           )}
-
-          {activeMenu === 'pengaduan' && (
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden text-center py-20 text-gray-400">
-               <AlertCircle size={48} className="mx-auto mb-4 opacity-50" />
-               <p>Belum ada pengaduan yang masuk ke dalam sistem.</p>
-            </div>
-          )}
-
         </div>
       </main>
     </div>
@@ -913,7 +649,6 @@ export default function App() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
-  // Global State
   const [dptLink, setDptLink] = useState('https://dpt.kpu.go.id');
   const [isAdminMode, setAdminMode] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -939,37 +674,32 @@ export default function App() {
     window.scrollTo(0, 0);
   };
 
-  if (isAdminMode) {
-    if (!isLoggedIn) {
-      return <AdminLogin onLogin={() => setIsLoggedIn(true)} onCancel={() => setAdminMode(false)} />;
-    }
-    return <AdminDashboard setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} quickCountData={quickCountData} setQuickCountData={setQuickCountData} />;
-  }
-
   const menuItems = [
     { id: 'beranda', label: 'BERANDA' },
     { id: 'profil', label: 'PROFIL' },
-    { id: 'publikasi', label: 'PUBLIKASI' },
     { id: 'informasi', label: 'INFORMASI' },
-    { id: 'pengaduan', label: 'PENGADUAN' },
   ];
 
   return (
     <div className="font-sans flex flex-col min-h-screen text-[#241C1D] bg-[#F8F7F3]">
-      {/* Header */}
+      
+      {isAdminMode && (
+        !isLoggedIn ? 
+        <AdminLogin onLogin={() => setIsLoggedIn(true)} onCancel={() => setAdminMode(false)} /> :
+        <AdminDashboard setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} quickCountData={quickCountData} setQuickCountData={setQuickCountData} />
+      )}
+
       <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#4A0E18] shadow-lg py-3' : 'bg-[#4A0E18]/95 backdrop-blur-sm py-5 border-b border-white/10'}`}>
         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
-          
           <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('beranda')}>
             <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform">
-              <Shield className="text-[#4A0E18] w-6 h-6 md:w-7 md:h-7" fill="currentColor" />
+              <Shield className="text-[#4A0E18] w-6 h-6 md:w-7 md:h-7" />
             </div>
             <div className="flex flex-col text-white">
               <span className="text-[10px] md:text-xs font-bold tracking-widest text-[#C9A227]">PANITIA PEMILIHAN</span>
               <span className="text-sm md:text-base font-bold font-serif leading-tight">DESA AIR NYATOH</span>
             </div>
           </div>
-
           <nav className="hidden md:flex gap-8 items-center">
             {menuItems.map(item => (
               <button 
@@ -981,12 +711,11 @@ export default function App() {
               </button>
             ))}
           </nav>
-
           <button className="md:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-
+        
         {isMobileMenuOpen && (
           <div className="md:hidden absolute top-full left-0 w-full bg-[#4A0E18] border-t border-white/10 shadow-xl py-2 flex flex-col animate-in slide-in-from-top-2">
             {menuItems.map(item => (
@@ -1001,25 +730,19 @@ export default function App() {
         )}
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow pt-[72px] md:pt-[88px]">
         {view === 'beranda' && <Beranda dptLink={dptLink} setView={navigate} />}
         {view === 'profil' && <Profil />}
-        {view === 'publikasi' && <Publikasi />}
         {view === 'informasi' && <Informasi initialTab={subTab} dptLink={dptLink} quickCountData={quickCountData} />}
-        {view === 'pengaduan' && <Pengaduan />}
       </main>
 
-      {/* Footer */}
       <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-            
             <div>
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center">
-                  <Shield className="text-[#4A0E18] w-7 h-7" fill="currentColor" />
+                  <Shield className="text-[#4A0E18] w-7 h-7" />
                 </div>
                 <div>
                   <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
@@ -1028,45 +751,9 @@ export default function App() {
               <p className="text-sm text-white/70 leading-relaxed mb-6 max-w-sm">
                 Penyelenggara independen Pemilihan Kepala Desa Air Nyatoh Tahun 2026. Berkomitmen mewujudkan pemilihan yang transparan, jujur, dan berintegritas.
               </p>
-              <button onClick={() => setAdminMode(true)} className="text-xs text-white/30 hover:text-[#C9A227] flex items-center gap-1.5 transition-colors font-medium">
-                <LayoutDashboard size={14}/> Admin Login
+              <button onClick={() => setAdminMode(true)} className="text-xs text-[#C9A227] hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-wider py-2 px-4 rounded-lg bg-black/20 border border-white/10">
+                <Lock size={14}/> Login Admin
               </button>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-[#C9A227] mb-6 tracking-wider uppercase text-sm">Tautan Cepat</h4>
-              <ul className="space-y-3 text-sm text-white/80">
-                {menuItems.map(item => (
-                  <li key={item.id}>
-                    <button onClick={() => navigate(item.id)} className="hover:text-[#C9A227] transition-colors flex items-center gap-2">
-                      <span className="w-1.5 h-1.5 bg-[#C9A227] rounded-full"></span> {item.label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-bold text-[#C9A227] mb-6 tracking-wider uppercase text-sm">Hubungi Kami</h4>
-              <ul className="space-y-4 text-sm text-white/80">
-                <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-[#C9A227] shrink-0 mt-0.5" />
-                  <span className="leading-relaxed">Gedung Balai Desa Air Nyatoh, Kec. Simpang Teritip, Kab. Bangka Barat</span>
-                </li>
-                <li className="flex items-center gap-3">
-                  <Volume2 className="w-5 h-5 text-[#C9A227] shrink-0" />
-                  <span>[NOMOR WHATSAPP CENTER]</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p className="text-xs text-white/50 text-center md:text-left">
-              &copy; 2026 Panitia Pemilihan Tingkat Desa Air Nyatoh.
-            </p>
-            <div className="text-xs text-white/40">
-              Versi 1.0.0
             </div>
           </div>
         </div>
