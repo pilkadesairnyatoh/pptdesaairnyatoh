@@ -1,763 +1,742 @@
-import React, { useState, useEffect } from 'react';
-import {
-  Home, Users, FileText, Info, Volume2, Calendar, Search, MapPin, Check,
-  ExternalLink, Menu, X, Shield, Scale, Handshake, LayoutDashboard, LogOut,
-  AlertCircle, Lock, User, TrendingUp, BarChart3, Settings, Upload
-} from 'lucide-react';
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Pilkades Air Nyatoh 2026</title>
+    
+    <!-- Tailwind CSS untuk Styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome untuk Ikon (Pengganti Lucide agar berjalan langsung di HTML) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts (Playfair Display & Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- React & ReactDOM Standalone -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel untuk menerjemahkan JSX secara langsung di browser -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-const COLORS = {
-  deepMaroon: '#4A0E18',
-  maroon: '#6B1725',
-  gold: '#C9A227',
-  deepWhite: '#F8F7F3',
-  darkText: '#241C1D'
-};
-
-const TAHAPAN_TIMELINE = [
-  { id: 1, nama: "Persiapan & Pembentukan Panitia", mulai: "6 Jul", selesai: "4 Ags 2026", status: "selesai" },
-  { id: 2, nama: "Pendaftaran Bakal Calon", mulai: "6 Ags", selesai: "19 Ags 2026", status: "selesai" },
-  { id: 3, nama: "Verifikasi & Klarifikasi", mulai: "20 Ags", selesai: "16 Sep 2026", status: "aktif" },
-  { id: 4, nama: "Penetapan Calon", mulai: "23 Sep", selesai: "24 Sep 2026", status: "mendatang" },
-  { id: 5, nama: "Daftar Pemilih", mulai: "28 Sep", selesai: "30 Okt 2026", status: "mendatang" },
-  { id: 6, nama: "Kampanye & Masa Tenang", mulai: "5 Nov", selesai: "17 Nov 2026", status: "mendatang" },
-  { id: 7, nama: "Pemungutan Suara", mulai: "18 Nov", selesai: "20 Nov 2026", status: "mendatang" },
-  { id: 8, nama: "Pelantikan", mulai: "28 Jan", selesai: "5 Feb 2027", status: "mendatang" },
-];
-
-const TAHAPAN_LENGKAP = [
-  { id: 1, tahap: "PERSIAPAN", nama: "Rapat Koordinasi & Pembentukan Panitia (PPT Desa)", mulai: "6 Jul 2026", selesai: "4 Ags 2026", status: "selesai" },
-  { id: 2, tahap: "PENCALONAN", nama: "Pengumuman dan pendaftaran bakal calon Kepala Desa", mulai: "6 Ags 2026", selesai: "19 Ags 2026", status: "selesai" },
-  { id: 3, tahap: "PENCALONAN", nama: "Verifikasi, Validasi & Klarifikasi Administrasi", mulai: "20 Ags 2026", selesai: "16 Sep 2026", status: "aktif" },
-  { id: 4, tahap: "PENCALONAN", nama: "Seleksi Tambahan (Jika > 5 Calon)", mulai: "18 Sep 2026", selesai: "22 Sep 2026", status: "mendatang" },
-  { id: 5, tahap: "PENCALONAN", nama: "Penetapan & Pengundian Nomor Urut Calon", mulai: "23 Sep 2026", selesai: "24 Sep 2026", status: "mendatang" },
-  { id: 6, tahap: "PEMUTAKHIRAN", nama: "Penyusunan & Penetapan Daftar Pemilih", mulai: "28 Sep 2026", selesai: "30 Okt 2026", status: "mendatang" },
-  { id: 7, tahap: "PEMUNGUTAN", nama: "Penyediaan perlengkapan pemungutan suara", mulai: "2 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
-  { id: 8, tahap: "KAMPANYE", nama: "Pelaksanaan Kampanye", mulai: "5 Nov 2026", selesai: "12 Nov 2026", status: "mendatang" },
-  { id: 9, tahap: "MASA TENANG", nama: "Penyampaian Undangan & Masa Tenang", mulai: "10 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
-  { id: 10, tahap: "PEMUNGUTAN", nama: "Pemungutan & Penghitungan Suara", mulai: "18 Nov 2026", selesai: "20 Nov 2026", status: "mendatang" },
-  { id: 11, tahap: "PENETAPAN", nama: "Penetapan calon kepala desa terpilih", mulai: "23 Nov 2026", selesai: "24 Nov 2026", status: "mendatang" },
-  { id: 12, tahap: "PELAPORAN", nama: "Penyampaian laporan hasil pemilihan kades", mulai: "25 Nov 2026", selesai: "3 Des 2026", status: "mendatang" },
-  { id: 13, tahap: "SENGKETA", nama: "Penyelesaian perselisihan/sengketa pemilihan", mulai: "7 Des 2026", selesai: "18 Des 2026", status: "mendatang" },
-  { id: 14, tahap: "PELANTIKAN", nama: "Pengesahan & Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", status: "mendatang" },
-];
-
-const SectionTitle = ({ title, subtitle, centered = true }) => (
-  <div className={`mb-10 ${centered ? 'text-center' : 'text-left'}`}>
-    {subtitle && <p className="text-[#C9A227] font-semibold tracking-wider text-sm uppercase mb-2">{subtitle}</p>}
-    <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#4A0E18]">{title}</h2>
-    <div className={`w-16 h-1 bg-[#C9A227] mt-4 ${centered ? 'mx-auto' : ''} rounded-full`}></div>
-  </div>
-);
-
-const Beranda = ({ dptLink, setView }) => {
-  return (
-    <div className="animate-in fade-in duration-500">
-      <section className="relative bg-[#4A0E18] text-[#F8F7F3] overflow-hidden min-h-[80vh] flex items-center">
-        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
-        <div className="absolute inset-0 bg-gradient-to-r from-[#4A0E18] via-[#4A0E18]/90 to-transparent"></div>
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #F8F7F3;
+            color: #241C1D;
+        }
+        h1, h2, h3, h4, h5, h6, .font-serif { 
+            font-family: 'Playfair Display', serif; 
+        }
+        /* Menyembunyikan scrollbar bawaan agar lebih rapi */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         
-        <div className="container mx-auto px-6 relative z-10 py-20">
-          <div className="max-w-3xl">
-            <div className="inline-block border border-[#C9A227]/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm bg-black/10">
-              <span className="text-[#C9A227] text-sm font-medium tracking-widest uppercase">Portal Resmi Panitia Pemilihan Tingkat Desa</span>
-            </div>
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-4 drop-shadow-lg">
-              PEMILIHAN <br className="hidden md:block"/> KEPALA DESA <br className="hidden md:block"/> <span className="text-[#C9A227]">AIR NYATOH</span>
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-serif text-white/90 mb-6">TAHUN 2026</h2>
-            <p className="text-lg md:text-xl text-[#F8F7F3]/80 mb-10 max-w-2xl border-l-4 border-[#C9A227] pl-4">
-              Portal resmi untuk memperoleh informasi, transparansi, dan perkembangan tahapan Pemilihan Kepala Desa Air Nyatoh Tahun 2026.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button onClick={() => setView('informasi')} className="bg-[#C9A227] text-[#4A0E18] font-bold py-3 px-8 rounded-lg hover:bg-yellow-500 transition-colors shadow-[0_4px_14px_0_rgba(201,162,39,0.39)] flex items-center justify-center gap-2">
-                LIHAT INFORMASI <Info size={20} />
-              </button>
-              <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-transparent border-2 border-[#C9A227] text-[#C9A227] font-bold py-3 px-8 rounded-lg hover:bg-[#C9A227]/10 transition-colors flex items-center justify-center gap-2">
-                CEK DPT <ExternalLink size={20} />
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
+        /* Efek Animasi Dasar Tailwind (karena tidak pakai konfigurasi full) */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .animate-fade-in { animation: fadeIn 0.5s ease-in-out; }
+        .animate-slide-up { animation: slideUp 0.6s ease-out; }
+    </style>
+</head>
+<body>
+    <!-- Wadah utama tempat React akan dirender -->
+    <div id="root"></div>
 
-      <section className="bg-[#6B1725] py-10 border-b-4 border-[#C9A227]">
-        <div className="container mx-auto px-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#C9A227]/30">
-            <div className="p-4 flex flex-col items-center">
-              <Shield className="w-10 h-10 text-[#C9A227] mb-3" />
-              <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">INTEGRITAS</h3>
-              <p className="text-white/70 text-sm">Penyelenggaraan yang jujur dan adil.</p>
-            </div>
-            <div className="p-4 flex flex-col items-center">
-              <Scale className="w-10 h-10 text-[#C9A227] mb-3" />
-              <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">TRANSPARANSI</h3>
-              <p className="text-white/70 text-sm">Keterbukaan informasi setiap tahapan.</p>
-            </div>
-            <div className="p-4 flex flex-col items-center">
-              <Handshake className="w-10 h-10 text-[#C9A227] mb-3" />
-              <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">PARTISIPASI</h3>
-              <p className="text-white/70 text-sm">Mewujudkan demokrasi dari akar rumput.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <script type="text/babel">
+        // Mengekstrak Hooks dari React global
+        const { useState, useEffect } = React;
 
-      {}
-      <section className="py-20 bg-[#F8F7F3]">
-        <div className="container mx-auto px-6">
-          <SectionTitle title="Akses Cepat Informasi" subtitle="Layanan & Data" />
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { title: "Jadwal & Tahapan", icon: Calendar, view: "informasi", tab: "jadwal", desc: "Pantau waktu pelaksanaan tahapan" },
-              { title: "Daftar Calon", icon: Users, view: "informasi", tab: "calon", desc: "Profil dan visi misi kandidat" },
-              { title: "Informasi TPS", icon: MapPin, view: "informasi", tab: "tps", desc: "Lokasi dan wilayah pemilih" },
-              { title: "Pengumuman", icon: Volume2, view: "publikasi", tab: null, desc: "Informasi terbaru dari panitia" },
-              { title: "Cek DPT", icon: Search, link: dptLink, desc: "Cek status hak pilih Anda" },
-              { title: "Pengaduan", icon: AlertCircle, view: "pengaduan", tab: null, desc: "Sampaikan laporan & masukan" },
-            ].map((item, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => item.link ? window.open(item.link, '_blank') : setView(item.view, item.tab)} 
-                className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group border border-gray-100 relative overflow-hidden"
-              >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-[#C9A227]/5 rounded-bl-full -z-10 group-hover:bg-[#C9A227]/10 transition-colors"></div>
-                <div className="w-12 h-12 bg-[#4A0E18]/5 rounded-xl flex items-center justify-center text-[#4A0E18] mb-4 group-hover:text-[#C9A227] group-hover:bg-[#4A0E18] transition-colors">
-                  <item.icon size={24} />
+        // Data Tahapan Sesuai Jadwal Pilkades Bangka Barat 2026
+        const TAHAPAN_TIMELINE = [
+            { id: 1, nama: "Persiapan & Pembentukan", mulai: "6 Jul", selesai: "4 Ags 2026", status: "selesai" },
+            { id: 2, nama: "Pendaftaran Bakal Calon", mulai: "6 Ags", selesai: "19 Ags 2026", status: "selesai" },
+            { id: 3, nama: "Verifikasi & Klarifikasi", mulai: "20 Ags", selesai: "11 Sep 2026", status: "aktif" },
+            { id: 4, nama: "Penetapan Calon", mulai: "14 Sep", selesai: "24 Sep 2026", status: "mendatang" },
+            { id: 5, nama: "Daftar Pemilih (DPT)", mulai: "28 Sep", selesai: "30 Okt 2026", status: "mendatang" },
+            { id: 6, nama: "Kampanye & Masa Tenang", mulai: "10 Nov", selesai: "17 Nov 2026", status: "mendatang" },
+            { id: 7, nama: "Pemungutan Suara", mulai: "18 Nov", selesai: "20 Nov 2026", status: "mendatang" },
+            { id: 8, nama: "Pelantikan", mulai: "28 Jan", selesai: "5 Feb 2027", status: "mendatang" },
+        ];
+
+        const TAHAPAN_LENGKAP = [
+            { id: 1, tahap: "PERSIAPAN", nama: "Rapat koordinasi persiapan dan pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "6 Jul 2026", selesai: "6 Jul 2026", status: "selesai" },
+            { id: 2, tahap: "PERSIAPAN", nama: "Pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "31 Jul 2026", selesai: "31 Jul 2026", status: "selesai" },
+            { id: 3, tahap: "PERSIAPAN", nama: "Rapat koordinasi PPTD dengan PPT Desa", mulai: "4 Ags 2026", selesai: "4 Ags 2026", status: "selesai" },
+            { id: 4, tahap: "PENCALONAN", nama: "Pengumuman dan pendaftaran bakal calon Kepala Desa oleh PPT Desa", mulai: "6 Ags 2026", selesai: "19 Ags 2026", status: "selesai" },
+            { id: 5, tahap: "PENCALONAN", nama: "Verifikasi dan validasi kelengkapan persyaratan administrasi bakal calon kepala desa", mulai: "20 Ags 2026", selesai: "21 Ags 2026", status: "selesai" },
+            { id: 6, tahap: "PENCALONAN", nama: "Perbaikan hasil verifikasi dan validasi kelengkapan persyaratan administrasi", mulai: "24 Ags 2026", selesai: "28 Ags 2026", status: "selesai" },
+            { id: 7, tahap: "PENCALONAN", nama: "Klarifikasi persyaratan administrasi bakal calon kepala desa", mulai: "31 Ags 2026", selesai: "11 Sep 2026", status: "aktif" },
+            { id: 8, tahap: "PENCALONAN", nama: "Penetapan bakal calon kepala desa yang memenuhi persyaratan administrasi", mulai: "14 Sep 2026", selesai: "14 Sep 2026", status: "mendatang" },
+            { id: 9, tahap: "PENCALONAN", nama: "Laporan hasil verifikasi dan validasi Persyaratan Administrasi serta klarifikasi", mulai: "15 Sep 2026", selesai: "16 Sep 2026", status: "mendatang" },
+            { id: 10, tahap: "PENCALONAN", nama: "Pelaksanaan seleksi tambahan (jika > 5 calon) & Penetapan peringkat", mulai: "18 Sep 2026", selesai: "22 Sep 2026", status: "mendatang" },
+            { id: 11, tahap: "PENCALONAN", nama: "Penetapan menjadi calon, Pengundian nomor urut & Pengumuman", mulai: "23 Sep 2026", selesai: "24 Sep 2026", status: "mendatang" },
+            { id: 12, tahap: "PEMUTAKHIRAN", nama: "Penyusunan s.d. Penetapan Daftar Pemilih Tetap (DPT)", mulai: "28 Sep 2026", selesai: "30 Okt 2026", status: "mendatang" },
+            { id: 13, tahap: "LOGISTIK", nama: "Penyediaan perlengkapan pemungutan dan perhitungan suara", mulai: "2 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
+            { id: 14, tahap: "KAMPANYE", nama: "Pelaksanaan kampanye calon kepala desa", mulai: "10 Nov 2026", selesai: "12 Nov 2026", status: "mendatang" },
+            { id: 15, tahap: "MASA TENANG", nama: "Penyampaian undangan kepada pemilih & Masa tenang", mulai: "10 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
+            { id: 16, tahap: "PEMUNGUTAN", nama: "Pemungutan dan Penghitungan suara di TPS & Rekapitulasi", mulai: "18 Nov 2026", selesai: "20 Nov 2026", status: "mendatang" },
+            { id: 17, tahap: "PENETAPAN", nama: "Penetapan calon kepala desa terpilih", mulai: "23 Nov 2026", selesai: "24 Nov 2026", status: "mendatang" },
+            { id: 18, tahap: "PELAPORAN", nama: "Penyampaian laporan hasil pemilihan kepala desa kepada Bupati", mulai: "25 Nov 2026", selesai: "3 Des 2026", status: "mendatang" },
+            { id: 19, tahap: "SENGKETA", nama: "Penyelesaian perselisihan/sengketa pemilihan", mulai: "7 Des 2026", selesai: "18 Des 2026", status: "mendatang" },
+            { id: 20, tahap: "PELANTIKAN", nama: "Pengesahan dan Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", status: "mendatang" }
+        ];
+
+        const SectionTitle = ({ title, subtitle, centered = true }) => (
+            <div className={`mb-10 ${centered ? 'text-center' : 'text-left'}`}>
+                {subtitle && <p className="text-[#C9A227] font-semibold tracking-wider text-sm uppercase mb-2">{subtitle}</p>}
+                <h2 className="text-3xl md:text-4xl font-serif font-bold text-[#4A0E18]">{title}</h2>
+                <div className={`w-16 h-1 bg-[#C9A227] mt-4 ${centered ? 'mx-auto' : ''} rounded-full`}></div>
+            </div>
+        );
+
+        const Beranda = ({ dptLink, setView }) => {
+            return (
+                <div className="animate-fade-in">
+                    <section className="relative bg-[#4A0E18] text-[#F8F7F3] overflow-hidden min-h-[85vh] flex items-center pt-20">
+                        {/* Pattern Background */}
+                        <div className="absolute inset-0 opacity-10" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
+                        <div className="absolute inset-0 bg-gradient-to-r from-[#4A0E18] via-[#4A0E18]/90 to-transparent"></div>
+                        
+                        <div className="container mx-auto px-6 relative z-10 py-20">
+                            <div className="max-w-3xl">
+                                <div className="inline-block border border-[#C9A227]/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm bg-black/10">
+                                    <span className="text-[#C9A227] text-sm font-medium tracking-widest uppercase">Portal Resmi Panitia Pemilihan Tingkat Desa</span>
+                                </div>
+                                <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-tight mb-4 drop-shadow-lg">
+                                    PEMILIHAN <br className="hidden md:block"/> KEPALA DESA <br className="hidden md:block"/> <span className="text-[#C9A227]">AIR NYATOH</span>
+                                </h1>
+                                <h2 className="text-2xl md:text-3xl font-serif text-white/90 mb-6">TAHUN 2026</h2>
+                                <p className="text-lg md:text-xl text-[#F8F7F3]/80 mb-10 max-w-2xl border-l-4 border-[#C9A227] pl-4">
+                                    Portal resmi untuk memperoleh informasi, transparansi, dan perkembangan tahapan Pemilihan Kepala Desa Air Nyatoh Tahun 2026.
+                                </p>
+                                <div className="flex flex-col sm:flex-row gap-4">
+                                    <button onClick={() => setView('informasi')} className="bg-[#C9A227] text-[#4A0E18] font-bold py-3 px-8 rounded-lg hover:bg-yellow-500 transition-colors shadow-[0_4px_14px_0_rgba(201,162,39,0.39)] flex items-center justify-center gap-2">
+                                        LIHAT INFORMASI <i className="fa-solid fa-circle-info"></i>
+                                    </button>
+                                    <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-transparent border-2 border-[#C9A227] text-[#C9A227] font-bold py-3 px-8 rounded-lg hover:bg-[#C9A227]/10 transition-colors flex items-center justify-center gap-2">
+                                        CEK DPT <i className="fa-solid fa-arrow-up-right-from-square"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {}
+                    <section className="bg-[#6B1725] py-10 border-b-4 border-[#C9A227]">
+                        <div className="container mx-auto px-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center divide-y md:divide-y-0 md:divide-x divide-[#C9A227]/30">
+                                <div className="p-4 flex flex-col items-center">
+                                    <i className="fa-solid fa-shield-halved text-4xl text-[#C9A227] mb-4"></i>
+                                    <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">INTEGRITAS</h3>
+                                    <p className="text-white/70 text-sm">Penyelenggaraan yang jujur dan adil.</p>
+                                </div>
+                                <div className="p-4 flex flex-col items-center">
+                                    <i className="fa-solid fa-scale-balanced text-4xl text-[#C9A227] mb-4"></i>
+                                    <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">TRANSPARANSI</h3>
+                                    <p className="text-white/70 text-sm">Keterbukaan informasi setiap tahapan.</p>
+                                </div>
+                                <div className="p-4 flex flex-col items-center">
+                                    <i className="fa-solid fa-handshake text-4xl text-[#C9A227] mb-4"></i>
+                                    <h3 className="text-[#C9A227] font-bold text-lg mb-1 tracking-wider">PARTISIPASI</h3>
+                                    <p className="text-white/70 text-sm">Mewujudkan demokrasi dari akar rumput.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {}
+                    <section className="py-20 bg-[#F8F7F3]">
+                        <div className="container mx-auto px-6">
+                            <SectionTitle title="Akses Cepat Informasi" subtitle="Layanan & Data" />
+                            
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                                {[
+                                    { title: "Jadwal & Tahapan", icon: "fa-calendar-days", view: "informasi", tab: "jadwal", desc: "Pantau waktu pelaksanaan tahapan" },
+                                    { title: "Daftar Calon", icon: "fa-users", view: "informasi", tab: "calon", desc: "Profil dan visi misi kandidat" },
+                                    { title: "Informasi TPS", icon: "fa-location-dot", view: "informasi", tab: "tps", desc: "Lokasi dan wilayah pemilih" },
+                                    { title: "Pengumuman", icon: "fa-bullhorn", view: "publikasi", tab: null, desc: "Informasi terbaru dari panitia" },
+                                    { title: "Cek DPT", icon: "fa-magnifying-glass", link: dptLink, desc: "Cek status hak pilih Anda" },
+                                    { title: "Pengaduan", icon: "fa-circle-exclamation", view: "pengaduan", tab: null, desc: "Sampaikan laporan & masukan" },
+                                ].map((item, idx) => (
+                                    <div 
+                                        key={idx} 
+                                        onClick={() => item.link ? window.open(item.link, '_blank') : setView(item.view, item.tab)} 
+                                        className="bg-white rounded-xl p-6 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all cursor-pointer group border border-gray-100 relative overflow-hidden"
+                                    >
+                                        <div className="absolute top-0 right-0 w-24 h-24 bg-[#C9A227]/5 rounded-bl-full -z-10 group-hover:bg-[#C9A227]/10 transition-colors"></div>
+                                        <div className="w-12 h-12 bg-[#4A0E18]/5 rounded-xl flex items-center justify-center text-[#4A0E18] mb-4 group-hover:text-[#C9A227] group-hover:bg-[#4A0E18] transition-colors">
+                                            <i className={`fa-solid ${item.icon} text-xl`}></i>
+                                        </div>
+                                        <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
+                                            {item.title} {item.link && <i className="fa-solid fa-arrow-up-right-from-square text-xs text-gray-400"></i>}
+                                        </h3>
+                                        <p className="text-gray-600 text-sm">{item.desc}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {}
+                    <section className="py-16 bg-white border-y border-gray-200">
+                        <div className="container mx-auto px-6">
+                            <div className="bg-[#4A0E18] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row items-center justify-between p-8 md:p-12 max-w-5xl mx-auto">
+                                <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
+                                <div className="relative z-10 md:w-2/3 text-center md:text-left mb-8 md:mb-0">
+                                    <div className="inline-flex items-center gap-2 bg-[#C9A227]/20 text-[#C9A227] px-3 py-1 rounded-full text-sm font-semibold mb-4 border border-[#C9A227]/30">
+                                        <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse"></span>
+                                        Layanan Eksternal
+                                    </div>
+                                    <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">SUDAH TERDAFTAR SEBAGAI PEMILIH?</h2>
+                                    <p className="text-white/80 text-lg">Pastikan nama Anda terdaftar sebagai pemilih dalam Pemilihan Kepala Desa Air Nyatoh Tahun 2026 untuk menggunakan hak suara Anda.</p>
+                                </div>
+                                <div className="relative z-10 md:w-1/3 flex flex-col items-center md:items-end">
+                                    <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-[#C9A227] text-[#4A0E18] font-bold text-lg py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(201,162,39,0.4)] hover:shadow-[0_0_30px_rgba(201,162,39,0.6)] hover:bg-yellow-400 transition-all flex items-center gap-2 w-full justify-center md:w-auto text-center">
+                                        CEK DPT SEKARANG <i className="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                                    </a>
+                                    <p className="text-[#C9A227]/70 text-xs mt-3 text-center md:text-right">*Anda akan diarahkan ke website resmi pengecekan DPT.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {}
+                    <section className="py-20 bg-[#F8F7F3]">
+                        <div className="container mx-auto px-6">
+                            <SectionTitle title="Tahapan Pemilihan" subtitle="Progres" />
+                            
+                            <div className="relative max-w-6xl mx-auto mt-12 overflow-x-auto pb-8 hide-scrollbar">
+                                <div className="hidden md:block absolute top-[40px] left-0 w-full h-1 bg-gray-200 z-0"></div>
+                                <div className="flex flex-col md:flex-row gap-8 md:gap-0 relative z-10 min-w-max md:min-w-0 px-4 md:px-0">
+                                    <div className="md:hidden absolute left-[31px] top-0 bottom-0 w-1 bg-gray-200 z-0"></div>
+                                    {TAHAPAN_TIMELINE.map((tahapan, index) => {
+                                        const isActive = tahapan.status === 'aktif';
+                                        const isDone = tahapan.status === 'selesai';
+                                        
+                                        return (
+                                            <div key={tahapan.id} className="relative flex md:flex-col items-start md:items-center flex-1 group min-w-[180px]">
+                                                <div className={`md:hidden absolute left-[31px] top-8 bottom-0 w-1 ${isDone ? 'bg-[#C9A227]' : 'bg-transparent'} z-0`}></div>
+                                                
+                                                {index > 0 && isDone && (
+                                                    <div className="hidden md:block absolute top-[40px] right-1/2 w-full h-1 bg-[#C9A227] -z-10"></div>
+                                                )}
+
+                                                <div className={`relative w-8 h-8 rounded-full flex items-center justify-center border-4 bg-white z-10 shrink-0 md:mb-6 mt-1 md:mt-0 ${
+                                                    isActive ? 'border-[#C9A227] w-10 h-10 shadow-[0_0_15px_rgba(201,162,39,0.5)] -ml-1 md:-ml-0 md:-mt-1' : 
+                                                    isDone ? 'border-[#C9A227] bg-[#C9A227]' : 'border-gray-300'
+                                                }`}>
+                                                    {isActive && <div className="w-2.5 h-2.5 bg-[#C9A227] rounded-full animate-pulse"></div>}
+                                                    {isDone && <i className="fa-solid fa-check text-xs text-[#4A0E18] font-bold"></i>}
+                                                </div>
+
+                                                <div className="pl-6 md:pl-0 w-full text-left md:text-center mt-1 md:mt-0">
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mb-2 inline-block uppercase tracking-wider ${
+                                                        isActive ? 'bg-[#C9A227]/10 text-[#C9A227] border border-[#C9A227]/20' : 
+                                                        isDone ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                                                    }`}>
+                                                        {tahapan.status}
+                                                    </span>
+                                                    <h4 className={`font-bold text-sm leading-snug mb-1 ${isActive ? 'text-[#4A0E18]' : 'text-gray-800'}`}>{tahapan.nama}</h4>
+                                                    <p className="text-xs text-gray-500">{tahapan.mulai} - {tahapan.selesai}</p>
+                                                </div>
+                                            </div>
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
                 </div>
-                <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
-                  {item.title} {item.link && <ExternalLink size={14} className="text-gray-400" />}
-                </h3>
-                <p className="text-gray-600 text-sm">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+            );
+        };
 
-      <section className="py-16 bg-white border-y border-gray-200">
-        <div className="container mx-auto px-6">
-          <div className="bg-[#4A0E18] rounded-2xl overflow-hidden shadow-2xl relative flex flex-col md:flex-row items-center justify-between p-8 md:p-12 max-w-5xl mx-auto">
-             <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
-            <div className="relative z-10 md:w-2/3 text-center md:text-left mb-8 md:mb-0">
-              <div className="inline-flex items-center gap-2 bg-[#C9A227]/20 text-[#C9A227] px-3 py-1 rounded-full text-sm font-semibold mb-4 border border-[#C9A227]/30">
-                <span className="w-2 h-2 rounded-full bg-[#C9A227] animate-pulse"></span>
-                Layanan Eksternal
-              </div>
-              <h2 className="text-3xl md:text-4xl font-serif font-bold text-white mb-4">SUDAH TERDAFTAR SEBAGAI PEMILIH?</h2>
-              <p className="text-white/80 text-lg">Pastikan nama Anda terdaftar sebagai pemilih dalam Pemilihan Kepala Desa Air Nyatoh Tahun 2026 untuk menggunakan hak suara Anda.</p>
-            </div>
-            <div className="relative z-10 md:w-1/3 flex flex-col items-center md:items-end">
-              <a href={dptLink} target="_blank" rel="noopener noreferrer" className="bg-[#C9A227] text-[#4A0E18] font-bold text-lg py-4 px-8 rounded-xl shadow-[0_0_20px_rgba(201,162,39,0.4)] hover:shadow-[0_0_30px_rgba(201,162,39,0.6)] hover:bg-yellow-400 transition-all flex items-center gap-2 w-full justify-center md:w-auto">
-                CEK DPT SEKARANG <ExternalLink size={20} />
-              </a>
-              <p className="text-[#C9A227]/70 text-xs mt-3 text-center md:text-right">*Anda akan diarahkan ke website resmi pengecekan DPT.</p>
-            </div>
-          </div>
-        </div>
-      </section>
+        const Informasi = ({ initialTab, dptLink, quickCountData }) => {
+            const [activeTab, setActiveTab] = useState(initialTab || 'jadwal');
+            
+            const tabs = [
+                { id: 'jadwal', label: 'Jadwal Lengkap', icon: "fa-calendar-days" },
+                { id: 'calon', label: 'Calon Kades', icon: "fa-users" },
+                { id: 'tps', label: 'Info TPS', icon: "fa-location-dot" },
+                { id: 'hasil', label: 'Hitung Cepat', icon: "fa-chart-column" },
+            ];
 
-      {}
-      <section className="py-20 bg-[#F8F7F3]">
-        <div className="container mx-auto px-6">
-          <SectionTitle title="Tahapan Pemilihan" subtitle="Progres" />
-          
-          <div className="relative max-w-6xl mx-auto mt-12 overflow-x-auto pb-8 hide-scrollbar">
-            <div className="hidden md:block absolute top-[40px] left-0 w-full h-1 bg-gray-200 z-0"></div>
-            <div className="flex flex-col md:flex-row gap-8 md:gap-0 relative z-10 min-w-max md:min-w-0 px-4 md:px-0">
-              
-              <div className="md:hidden absolute left-[31px] top-0 bottom-0 w-1 bg-gray-200 z-0"></div>
+            return (
+                <div className="animate-fade-in bg-[#F8F7F3] min-h-screen py-24 md:py-32">
+                    <div className="container mx-auto px-4 md:px-6 max-w-6xl">
+                        <SectionTitle title="Pusat Informasi" subtitle="Data Pemilihan" />
 
-              {TAHAPAN_TIMELINE.map((tahapan, index) => {
-                const isActive = tahapan.status === 'aktif';
-                const isDone = tahapan.status === 'selesai';
-                
-                return (
-                  <div key={tahapan.id} className="relative flex md:flex-col items-start md:items-center flex-1 group min-w-[180px]">
+                        {/* Navigasi Tab */}
+                        <div className="flex overflow-x-auto hide-scrollbar border-b-2 border-gray-200 mb-8 pb-px">
+                            <div className="flex space-x-2 md:space-x-8 min-w-max px-2">
+                                {tabs.map(tab => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`py-3 px-3 md:px-1 border-b-4 font-medium text-sm transition-colors whitespace-nowrap flex items-center gap-2 ${
+                                            activeTab === tab.id 
+                                                ? 'border-[#C9A227] text-[#4A0E18] font-bold' 
+                                                : 'border-transparent text-gray-500 hover:text-[#4A0E18] hover:border-gray-300'
+                                        }`}
+                                    >
+                                        <i className={`fa-solid ${tab.icon}`}></i> {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+
+                        {}
+                        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
+                            
+                            {activeTab === 'jadwal' && (
+                                <div className="animate-fade-in">
+                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
+                                        <i className="fa-solid fa-calendar-days text-[#C9A227]"></i> Jadwal Tahapan Pilkades Serentak
+                                    </h3>
+                                    <p className="text-gray-500 text-sm mb-6 pb-4 border-b">Kabupaten Bangka Barat Tahun 2026</p>
+                                    
+                                    <div className="overflow-x-auto rounded-xl border border-gray-200">
+                                        <table className="w-full text-left border-collapse text-sm">
+                                            <thead>
+                                                <tr className="bg-gray-50 text-gray-700">
+                                                    <th className="p-4 border-b font-bold w-1/5">Fase</th>
+                                                    <th className="p-4 border-b font-bold w-2/5">Uraian Tahapan</th>
+                                                    <th className="p-4 border-b font-bold">Waktu</th>
+                                                    <th className="p-4 border-b font-bold text-center">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {TAHAPAN_LENGKAP.map((item, idx) => (
+                                                    <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                                        <td className="p-4 border-b text-[#C9A227] font-bold text-xs uppercase tracking-wider">{item.tahap}</td>
+                                                        <td className="p-4 border-b text-gray-800 font-medium leading-snug">{item.nama}</td>
+                                                        <td className="p-4 border-b text-gray-600 whitespace-nowrap">{item.mulai}{item.selesai !== item.mulai ? ` - ${item.selesai}` : ''}</td>
+                                                        <td className="p-4 border-b text-center">
+                                                            <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase whitespace-nowrap ${
+                                                                item.status === 'selesai' ? 'bg-green-100 text-green-700' :
+                                                                item.status === 'aktif' ? 'bg-[#C9A227]/20 text-[#4A0E18] border border-[#C9A227]/30' : 'bg-gray-100 text-gray-500'
+                                                            }`}>
+                                                                {item.status}
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'calon' && (
+                                <div className="animate-fade-in text-center py-16">
+                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-100">
+                                        <i className="fa-solid fa-users text-4xl text-gray-300"></i>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-600 mb-2">Penetapan Calon Belum Dilakukan</h3>
+                                    <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon (14-24 September 2026) selesai dilaksanakan.</p>
+                                </div>
+                            )}
+
+                            {activeTab === 'tps' && (
+                                <div className="animate-fade-in">
+                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
+                                        <i className="fa-solid fa-location-dot text-[#C9A227] text-2xl"></i> Daftar Tempat Pemungutan Suara (TPS)
+                                    </h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {[1, 2, 3, 4].map(num => (
+                                            <div key={num} className="border border-gray-200 rounded-xl p-5 hover:border-[#C9A227]/50 transition-colors flex gap-4 bg-gray-50">
+                                                <div className="w-12 h-12 bg-[#4A0E18] text-[#C9A227] font-bold text-xl rounded-lg flex items-center justify-center shrink-0 shadow-inner">
+                                                    {num < 10 ? `0${num}` : num}
+                                                </div>
+                                                <div>
+                                                    <h4 className="font-bold text-gray-800 mb-1">TPS {num < 10 ? `0${num}` : num}</h4>
+                                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold text-gray-800">Lokasi:</span> [NAMA LOKASI TPS {num}]</p>
+                                                    <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">Wilayah:</span> [CAKUPAN RT/RW/DUSUN]</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'hasil' && (
+                                <div className="animate-fade-in">
+                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
+                                        <i className="fa-solid fa-chart-column text-[#C9A227] text-2xl"></i> Hasil Hitung Cepat (Quick Count)
+                                    </h3>
+                                    
+                                    <div className="mb-8 p-5 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 flex gap-4">
+                                        <i className="fa-solid fa-circle-info shrink-0 mt-0.5 text-xl"></i>
+                                        <p className="leading-relaxed">Data yang ditampilkan di bawah ini adalah hasil simulasi perhitungan cepat (Quick Count). Hasil resmi adalah yang ditetapkan pada rapat pleno rekapitulasi pada 18-20 November 2026.</p>
+                                    </div>
+
+                                    <div className="space-y-6">
+                                        {(() => {
+                                            const totalSuara = quickCountData.reduce((acc, curr) => acc + curr.suara, 0);
+                                            
+                                            return quickCountData.map((calon) => {
+                                                const persentase = totalSuara === 0 ? 0 : ((calon.suara / totalSuara) * 100).toFixed(1);
+                                                return (
+                                                    <div key={calon.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
+                                                        <div className="flex justify-between items-center mb-3">
+                                                            <span className="font-bold text-[#4A0E18] text-lg flex items-center gap-3">
+                                                                <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm" style={{backgroundColor: calon.warna}}>{calon.id}</span>
+                                                                {calon.nama}
+                                                            </span>
+                                                            <div className="text-right">
+                                                                <span className="font-black text-2xl text-[#C9A227]">{persentase}%</span>
+                                                                <span className="text-sm text-gray-500 ml-2 block sm:inline">({calon.suara.toLocaleString('id-ID')} suara)</span>
+                                                            </div>
+                                                        </div>
+                                                        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
+                                                            <div 
+                                                                className="h-4 rounded-full transition-all duration-1000 ease-out" 
+                                                                style={{ width: `${persentase}%`, backgroundColor: calon.warna }}
+                                                            ></div>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            })
+                                        })()}
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminLogin = ({ onLogin, onCancel }) => {
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                // Simulasi autentikasi statis
+                if (username === 'admin' && password === 'admin123') {
+                    setError('');
+                    onLogin();
+                } else {
+                    setError('Username atau password salah!');
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-[#4A0E18] flex items-center justify-center p-6 fixed inset-0 z-[100] animate-fade-in">
+                    <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-slide-up">
+                        <div className="w-16 h-16 bg-[#C9A227] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner border-2 border-white">
+                            <i className="fa-solid fa-shield-halved text-3xl text-[#4A0E18]"></i>
+                        </div>
+                        
+                        <h2 className="text-2xl font-serif font-bold text-center text-[#4A0E18] mb-1">Login Admin Portal</h2>
+                        <p className="text-gray-500 text-center text-sm mb-8">Pilkades Air Nyatoh 2026</p>
+
+                        {error && (
+                            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 flex items-center gap-2 border border-red-200">
+                                <i className="fa-solid fa-circle-exclamation"></i> {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleLogin} className="space-y-5">
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Username (admin)</label>
+                                <div className="relative">
+                                    <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin" />
+                                    <i className="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-bold text-gray-700 mb-2">Password (admin123)</label>
+                                <div className="relative">
+                                    <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin123" />
+                                    <i className="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i>
+                                </div>
+                            </div>
+                            <button type="submit" className="w-full bg-[#4A0E18] text-white font-bold py-3.5 rounded-xl hover:bg-[#6B1725] transition-colors shadow-lg mt-4">
+                                Masuk ke Sistem
+                            </button>
+                        </form>
+
+                        <button onClick={onCancel} className="w-full mt-6 text-sm text-gray-500 hover:text-[#4A0E18] transition-colors">
+                            &larr; Kembali ke Website
+                        </button>
+                    </div>
+                </div>
+            );
+        };
+
+        const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData }) => {
+            const [activeMenu, setActiveMenu] = useState('dashboard');
+            const [tempLink, setTempLink] = useState(dptLink);
+            const [saved, setSaved] = useState(false);
+
+            const handleSaveLink = (e) => {
+                e.preventDefault();
+                setDptLink(tempLink);
+                setSaved(true);
+                setTimeout(() => setSaved(false), 3000);
+            };
+
+            const handleQuickCountChange = (index, value) => {
+                const val = parseInt(value) || 0;
+                const newData = [...quickCountData];
+                newData[index].suara = val;
+                setQuickCountData(newData);
+            };
+
+            return (
+                <div className="min-h-screen bg-gray-100 flex animate-fade-in fixed inset-0 z-[100]">
+                    {/* Sidebar Admin */}
+                    <aside className="w-64 bg-[#4A0E18] text-white flex flex-col h-full shadow-2xl shrink-0">
+                        <div className="p-6 border-b border-white/10 flex items-center gap-3">
+                            <div className="w-10 h-10 bg-[#C9A227] rounded-lg flex items-center justify-center text-[#4A0E18] font-bold shadow-inner">
+                                <i className="fa-solid fa-shield-halved"></i>
+                            </div>
+                            <div>
+                                <h2 className="font-bold text-sm tracking-widest">PANITIA DESA</h2>
+                                <p className="text-xs text-[#C9A227]">Admin Panel</p>
+                            </div>
+                        </div>
+                        <nav className="flex-1 py-6 space-y-2 px-4">
+                            {[
+                                { id: 'dashboard', label: 'Dashboard', icon: "fa-chart-pie" },
+                                { id: 'quickcount', label: 'Hitung Cepat (5 Calon)', icon: "fa-chart-column" },
+                                { id: 'pengaturan', label: 'Pengaturan Link DPT', icon: "fa-gear" },
+                            ].map(menu => (
+                                <button 
+                                    key={menu.id}
+                                    onClick={() => setActiveMenu(menu.id)}
+                                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === menu.id ? 'bg-[#C9A227] text-[#4A0E18] shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
+                                >
+                                    <i className={`fa-solid ${menu.icon} w-5`}></i> {menu.label}
+                                </button>
+                            ))}
+                        </nav>
+                        <div className="p-4 border-t border-white/10">
+                            <button onClick={() => setAdminMode(false)} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-300 hover:text-white hover:bg-red-900/50 rounded-xl transition-colors font-medium">
+                                <i className="fa-solid fa-right-from-bracket w-5"></i> Keluar Dashboard
+                            </button>
+                        </div>
+                    </aside>
+
+                    {/* Area Konten Admin */}
+                    <main className="flex-1 p-8 overflow-y-auto">
+                        <div className="max-w-5xl mx-auto">
+                            <header className="mb-8 flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                                <div>
+                                    <h1 className="text-2xl font-bold text-gray-800 capitalize mb-1">{activeMenu.replace('-', ' ')}</h1>
+                                    <p className="text-gray-500 text-sm">Sistem Manajemen Portal Informasi Pilkades 2026</p>
+                                </div>
+                                <div className="flex items-center gap-2 text-sm bg-green-50 text-green-700 px-4 py-2 rounded-lg font-bold border border-green-200">
+                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Online
+                                </div>
+                            </header>
+
+                            {activeMenu === 'dashboard' && (
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                    {[
+                                        { label: 'Total Calon', val: '5', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
+                                        { label: 'Total TPS', val: '4', color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
+                                        { label: 'Pengaduan', val: '0', color: 'text-[#C9A227]', bg: 'bg-yellow-50', border: 'border-yellow-100' },
+                                        { label: 'Pengunjung', val: '1.2K', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
+                                    ].map((stat, i) => (
+                                        <div key={i} className={`p-6 rounded-2xl shadow-sm border ${stat.bg} ${stat.border}`}>
+                                            <p className="text-gray-600 text-sm mb-2 font-medium">{stat.label}</p>
+                                            <p className={`text-4xl font-black ${stat.color}`}>{stat.val}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+
+                            {activeMenu === 'quickcount' && (
+                                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animate-fade-in">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat (Quick Count) - 5 Calon</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon. Perubahan akan langsung terlihat pada halaman publik tab "Hitung Cepat".</p>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {quickCountData.map((calon, index) => (
+                                            <div key={calon.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 flex flex-col justify-between">
+                                                <div className="flex items-center gap-3 mb-4">
+                                                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: calon.warna }}>
+                                                        {calon.id}
+                                                    </div>
+                                                    <h4 className="font-bold text-gray-800">{calon.nama}</h4>
+                                                </div>
+                                                <div>
+                                                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Perolehan Suara</label>
+                                                    <input 
+                                                        type="number" min="0" value={calon.suara}
+                                                        onChange={(e) => handleQuickCountChange(index, e.target.value)}
+                                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none font-bold text-xl bg-white"
+                                                    />
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeMenu === 'pengaturan' && (
+                                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl animate-fade-in">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Pengaturan URL Eksternal DPT</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Ubah tautan sistem DPT yang akan diakses masyarakat saat menekan tombol "Cek DPT".</p>
+                                    
+                                    <form onSubmit={handleSaveLink} className="space-y-5">
+                                        <div>
+                                            <label className="block text-sm font-bold text-gray-700 mb-2">URL Website Cek DPT Resmi</label>
+                                            <input 
+                                                type="url" value={tempLink} onChange={(e) => setTempLink(e.target.value)} required
+                                                className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50"
+                                            />
+                                        </div>
+                                        <div className="flex items-center gap-4 pt-2">
+                                            <button type="submit" className="bg-[#4A0E18] text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#6B1725] transition-colors">
+                                                Simpan Perubahan
+                                            </button>
+                                            {saved && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><i className="fa-solid fa-check"></i> Tersimpan</span>}
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
+                        </div>
+                    </main>
+                </div>
+            );
+        };
+
+        const App = () => {
+            const [view, setView] = useState('beranda');
+            const [isScrolled, setIsScrolled] = useState(false);
+            const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+            
+            // State Global Aplikasi
+            const [dptLink, setDptLink] = useState('https://dpt.kpu.go.id');
+            const [isAdminMode, setAdminMode] = useState(false);
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            
+            // Data 5 Calon Kades
+            const [quickCountData, setQuickCountData] = useState([
+                { id: 1, nama: "Calon No. Urut 1", suara: 0, warna: "#4A0E18" },
+                { id: 2, nama: "Calon No. Urut 2", suara: 0, warna: "#6B1725" },
+                { id: 3, nama: "Calon No. Urut 3", suara: 0, warna: "#C9A227" },
+                { id: 4, nama: "Calon No. Urut 4", suara: 0, warna: "#8C7B5D" },
+                { id: 5, nama: "Calon No. Urut 5", suara: 0, warna: "#241C1D" },
+            ]);
+
+            useEffect(() => {
+                const handleScroll = () => setIsScrolled(window.scrollY > 20);
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            const navigate = (newView) => {
+                setView(newView);
+                setIsMobileMenuOpen(false);
+                window.scrollTo(0, 0);
+            };
+
+            const menuItems = [
+                { id: 'beranda', label: 'BERANDA' },
+                { id: 'informasi', label: 'INFORMASI & HASIL' },
+            ];
+
+            return (
+                <div className="font-sans flex flex-col min-h-screen text-[#241C1D] bg-[#F8F7F3]">
                     
-                    <div className={`md:hidden absolute left-[31px] top-8 bottom-0 w-1 ${isDone ? 'bg-[#C9A227]' : 'bg-transparent'} z-0`}></div>
-                    
-                    {index > 0 && isDone && (
-                      <div className="hidden md:block absolute top-[40px] right-1/2 w-full h-1 bg-[#C9A227] -z-10"></div>
+                    {/* Logika Sistem Admin */}
+                    {isAdminMode && (
+                        !isLoggedIn ? 
+                        <AdminLogin onLogin={() => setIsLoggedIn(true)} onCancel={() => setAdminMode(false)} /> :
+                        <AdminDashboard setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} quickCountData={quickCountData} setQuickCountData={setQuickCountData} />
                     )}
 
-                    <div className={`relative w-8 h-8 rounded-full flex items-center justify-center border-4 bg-white z-10 shrink-0 md:mb-6 mt-1 md:mt-0 ${
-                      isActive ? 'border-[#C9A227] w-10 h-10 shadow-[0_0_15px_rgba(201,162,39,0.5)] -ml-1 md:-ml-0 md:-mt-1' : 
-                      isDone ? 'border-[#C9A227] bg-[#C9A227]' : 'border-gray-300'
-                    }`}>
-                      {isActive && <div className="w-2.5 h-2.5 bg-[#C9A227] rounded-full animate-pulse"></div>}
-                      {isDone && <Check size={14} className="text-[#4A0E18] font-bold" />}
-                    </div>
+                    {/* Navigasi / Header Utama */}
+                    <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#4A0E18] shadow-lg py-3' : 'bg-[#4A0E18] py-5 border-b border-white/10'}`}>
+                        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
+                            <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('beranda')}>
+                                <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform">
+                                    <i className="fa-solid fa-shield-halved text-[#4A0E18] text-xl"></i>
+                                </div>
+                                <div className="flex flex-col text-white">
+                                    <span className="text-[10px] md:text-xs font-bold tracking-widest text-[#C9A227]">PANITIA PEMILIHAN</span>
+                                    <span className="text-sm md:text-base font-bold font-serif leading-tight">DESA AIR NYATOH</span>
+                                </div>
+                            </div>
+                            
+                            <nav className="hidden md:flex gap-8 items-center">
+                                {menuItems.map(item => (
+                                    <button 
+                                        key={item.id} onClick={() => navigate(item.id)}
+                                        className={`text-sm font-bold tracking-wide transition-colors relative group py-2 ${view === item.id ? 'text-[#C9A227]' : 'text-white hover:text-[#C9A227]'}`}
+                                    >
+                                        {item.label}
+                                        {view === item.id && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#C9A227] rounded-full"></span>}
+                                    </button>
+                                ))}
+                            </nav>
 
-                    <div className="pl-6 md:pl-0 w-full text-left md:text-center mt-1 md:mt-0">
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md mb-2 inline-block uppercase tracking-wider ${
-                        isActive ? 'bg-[#C9A227]/10 text-[#C9A227] border border-[#C9A227]/20' : 
-                        isDone ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {tahapan.status}
-                      </span>
-                      <h4 className={`font-bold text-sm leading-snug mb-1 ${isActive ? 'text-[#4A0E18]' : 'text-gray-800'}`}>{tahapan.nama}</h4>
-                      <p className="text-xs text-gray-500">{tahapan.mulai} - {tahapan.selesai}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-};
-
-const Profil = () => {
-  const panitia = [
-    { jabatan: "Ketua Panitia", nama: "[NAMA KETUA]" },
-    { jabatan: "Wakil Ketua", nama: "[NAMA WAKIL KETUA]" },
-    { jabatan: "Sekretaris", nama: "[NAMA SEKRETARIS]" },
-    { jabatan: "Bendahara", nama: "[NAMA BENDAHARA]" },
-    { jabatan: "Anggota", nama: "[NAMA ANGGOTA 1]" },
-    { jabatan: "Anggota", nama: "[NAMA ANGGOTA 2]" },
-    { jabatan: "Anggota", nama: "[NAMA ANGGOTA 3]" },
-  ];
-
-  return (
-    <div className="animate-in slide-in-from-bottom-8 duration-700 bg-[#F8F7F3] min-h-screen py-20">
-      <div className="container mx-auto px-6">
-        <SectionTitle title="Profil Panitia Pemilihan" subtitle="Tentang Kami" />
-
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div className="bg-white p-8 md:p-10 rounded-2xl shadow-sm border border-gray-100 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-[#C9A227]/5 rounded-bl-full"></div>
-            <h3 className="text-2xl font-serif font-bold text-[#4A0E18] mb-6 flex items-center gap-3">
-              <FileText className="text-[#C9A227]" size={28} /> Dasar Pembentukan
-            </h3>
-            <div className="space-y-4 text-gray-700 leading-relaxed text-justify relative z-10">
-              <p>
-                Panitia Pemilihan Tingkat Desa Air Nyatoh dibentuk berdasarkan Keputusan Badan Permusyawaratan Desa (BPD) Air Nyatoh Nomor [NOMOR SK] Tahun 2026 tentang Pembentukan Panitia Pemilihan Kepala Desa Tingkat Desa Air Nyatoh.
-              </p>
-              <p>
-                Panitia bertugas menyelenggarakan seluruh tahapan pemilihan secara independen, jujur, adil, transparan, dan akuntabel sesuai dengan peraturan perundang-undangan yang berlaku, mulai dari tahap persiapan, pencalonan, pemungutan suara, hingga penetapan calon terpilih.
-              </p>
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-2xl font-serif font-bold text-[#4A0E18] mb-8 text-center">Struktur Kepanitiaan</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 justify-center">
-              {panitia.map((person, idx) => (
-                <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 text-center hover:shadow-md transition-shadow group">
-                  <div className="w-24 h-24 mx-auto bg-[#F8F7F3] rounded-full mb-4 border-2 border-[#C9A227]/30 flex items-center justify-center group-hover:border-[#C9A227] transition-colors overflow-hidden relative">
-                    <User size={40} className="text-gray-300" />
-                  </div>
-                  <h4 className="font-bold text-[#4A0E18] text-sm mb-1">{person.nama}</h4>
-                  <p className="text-xs text-[#C9A227] font-bold uppercase tracking-wider">{person.jabatan}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-[#4A0E18] text-[#F8F7F3] p-8 md:p-10 rounded-2xl shadow-xl relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 opacity-10 pointer-events-none" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a227' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E\")" }}></div>
-            <h3 className="text-2xl font-serif font-bold mb-6 flex items-center gap-3 relative z-10 text-white">
-              <MapPin className="text-[#C9A227]" size={28} /> Pusat Informasi & Sekretariat
-            </h3>
-            <div className="relative z-10 space-y-4">
-              <div className="flex items-start gap-4 bg-black/20 p-4 rounded-xl border border-white/10">
-                <span className="font-semibold w-24 shrink-0 text-[#C9A227]">Alamat:</span> 
-                <span className="text-white/90">Kantor Sekretariat Panitia, Gedung Balai Desa Air Nyatoh, Kec. Simpang Teritip, Kab. Bangka Barat</span>
-              </div>
-              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/10">
-                <span className="font-semibold w-24 shrink-0 text-[#C9A227]">Email:</span> 
-                <span className="text-white/90">[EMAIL RESMI PANITIA]</span>
-              </div>
-              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-xl border border-white/10">
-                <span className="font-semibold w-24 shrink-0 text-[#C9A227]">WhatsApp:</span> 
-                <span className="text-white/90">[NOMOR WA CENTER PANITIA]</span>
-              </div>
-              <div className="mt-6 pt-6 border-t border-white/10 flex items-center gap-2 text-sm text-[#C9A227]">
-                <Calendar size={16} /> Jam Operasional: Senin - Jumat (08:00 - 15:00 WIB)
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Informasi = ({ initialTab, dptLink, quickCountData }) => {
-  const [activeTab, setActiveTab] = useState(initialTab || 'jadwal');
-  
-  const tabs = [
-    { id: 'jadwal', label: 'Jadwal Lengkap', icon: Calendar },
-    { id: 'calon', label: 'Calon Kades', icon: Users },
-    { id: 'tps', label: 'Info TPS', icon: MapPin },
-    { id: 'regulasi', label: 'Regulasi', icon: FileText },
-    { id: 'faq', label: 'FAQ', icon: Info },
-    { id: 'hasil', label: 'Hitung Cepat', icon: BarChart3 },
-  ];
-
-  return (
-    <div className="animate-in fade-in duration-500 bg-[#F8F7F3] min-h-screen py-10 md:py-20">
-      <div className="container mx-auto px-4 md:px-6 max-w-6xl">
-        <SectionTitle title="Pusat Informasi" subtitle="Data Pemilihan" />
-
-        <div className="flex overflow-x-auto hide-scrollbar border-b-2 border-gray-200 mb-8 pb-px">
-          <div className="flex space-x-2 md:space-x-8 min-w-max px-2">
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-3 px-3 md:px-1 border-b-4 font-medium text-sm transition-colors whitespace-nowrap flex items-center gap-2 ${
-                  activeTab === tab.id 
-                    ? 'border-[#C9A227] text-[#4A0E18] font-bold' 
-                    : 'border-transparent text-gray-500 hover:text-[#4A0E18] hover:border-gray-300'
-                }`}
-              >
-                <tab.icon size={16} /> {tab.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-gray-100 min-h-[400px]">
-          
-          {activeTab === 'jadwal' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
-                <Calendar className="text-[#C9A227]" /> Jadwal Tahapan Pemilihan Kepala Desa Serentak
-              </h3>
-              <p className="text-gray-500 text-sm mb-6 pb-4 border-b">Kabupaten Bangka Barat Tahun 2026</p>
-              
-              <div className="overflow-x-auto rounded-xl border border-gray-200">
-                <table className="w-full text-left border-collapse text-sm">
-                  <thead>
-                    <tr className="bg-gray-50 text-gray-700">
-                      <th className="p-4 border-b font-bold w-1/5">Fase</th>
-                      <th className="p-4 border-b font-bold w-2/5">Uraian Tahapan</th>
-                      <th className="p-4 border-b font-bold">Waktu</th>
-                      <th className="p-4 border-b font-bold text-center">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {TAHAPAN_LENGKAP.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50 transition-colors">
-                        <td className="p-4 border-b text-[#C9A227] font-bold text-xs uppercase tracking-wider">{item.tahap}</td>
-                        <td className="p-4 border-b text-gray-800 font-medium leading-snug">{item.nama}</td>
-                        <td className="p-4 border-b text-gray-600 whitespace-nowrap">{item.mulai}{item.selesai !== item.mulai ? ` - ${item.selesai}` : ''}</td>
-                        <td className="p-4 border-b text-center">
-                          <span className={`px-2.5 py-1 text-[10px] font-bold rounded-md uppercase whitespace-nowrap ${
-                            item.status === 'selesai' ? 'bg-green-100 text-green-700' :
-                            item.status === 'aktif' ? 'bg-[#C9A227]/20 text-[#4A0E18] border border-[#C9A227]/30' : 'bg-gray-100 text-gray-500'
-                          }`}>
-                            {item.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'calon' && (
-            <div className="animate-in fade-in duration-500 text-center py-16">
-              <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-100">
-                <Users className="w-10 h-10 text-gray-300" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-600 mb-2">Penetapan Calon Belum Dilakukan</h3>
-              <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon selesai dilaksanakan.</p>
-            </div>
-          )}
-
-          {activeTab === 'tps' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
-                <MapPin className="text-[#C9A227]" size={24} /> Daftar Tempat Pemungutan Suara (TPS)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[1, 2, 3, 4].map(num => (
-                  <div key={num} className="border border-gray-200 rounded-xl p-5 hover:border-[#C9A227]/50 transition-colors flex gap-4 bg-gray-50">
-                    <div className="w-12 h-12 bg-[#4A0E18] text-[#C9A227] font-bold text-xl rounded-lg flex items-center justify-center shrink-0 shadow-inner">
-                      {num < 10 ? `0${num}` : num}
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-gray-800 mb-1">TPS {num < 10 ? `0${num}` : num}</h4>
-                      <p className="text-sm text-gray-600 mb-1"><span className="font-semibold text-gray-800">Lokasi:</span> [NAMA LOKASI/GEDUNG TPS {num}]</p>
-                      <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">Wilayah:</span> [CAKUPAN RT/RW/DUSUN]</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'hasil' && (
-            <div className="animate-in fade-in duration-500">
-              <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
-                <BarChart3 className="text-[#C9A227]" size={24} /> Hasil Hitung Cepat (Quick Count)
-              </h3>
-              
-              <div className="mb-8 p-5 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 flex gap-4">
-                <Info className="shrink-0 mt-0.5" size={20} />
-                <p className="leading-relaxed">Data yang ditampilkan di bawah ini adalah hasil simulasi perhitungan cepat (Quick Count). Hasil resmi adalah yang ditetapkan pada rapat pleno rekapitulasi.</p>
-              </div>
-
-              <div className="space-y-6">
-                {(() => {
-                  const totalSuara = quickCountData.reduce((acc, curr) => acc + curr.suara, 0);
-                  
-                  return quickCountData.map((calon) => {
-                    const persentase = totalSuara === 0 ? 0 : ((calon.suara / totalSuara) * 100).toFixed(1);
-                    return (
-                      <div key={calon.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
-                        <div className="flex justify-between items-center mb-3">
-                          <span className="font-bold text-[#4A0E18] text-lg flex items-center gap-3">
-                            <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm" style={{backgroundColor: calon.warna}}>{calon.id}</span>
-                            {calon.nama}
-                          </span>
-                          <div className="text-right">
-                            <span className="font-black text-2xl text-[#C9A227]">{persentase}%</span>
-                            <span className="text-sm text-gray-500 ml-2 block sm:inline">({calon.suara.toLocaleString('id-ID')} suara)</span>
-                          </div>
+                            <button className="md:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                                <i className={`fa-solid ${isMobileMenuOpen ? 'fa-xmark' : 'fa-bars'} text-2xl`}></i>
+                            </button>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-                          <div 
-                            className="h-4 rounded-full transition-all duration-1000 ease-out" 
-                            style={{ width: `${persentase}%`, backgroundColor: calon.warna }}
-                          ></div>
+                        
+                        {/* Mobile Menu Dropdown */}
+                        {isMobileMenuOpen && (
+                            <div className="md:hidden absolute top-full left-0 w-full bg-[#4A0E18] border-t border-white/10 shadow-xl py-2 flex flex-col animate-slide-up">
+                                {menuItems.map(item => (
+                                    <button 
+                                        key={item.id} onClick={() => navigate(item.id)}
+                                        className={`py-4 px-6 text-left text-sm font-bold tracking-wide border-b border-white/5 ${view === item.id ? 'text-[#C9A227] bg-black/10' : 'text-white'}`}
+                                    >
+                                        {item.label}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </header>
+
+                    {/* Body Routing */}
+                    <main className="flex-grow">
+                        {view === 'beranda' && <Beranda dptLink={dptLink} setView={navigate} />}
+                        {view === 'informasi' && <Informasi dptLink={dptLink} quickCountData={quickCountData} />}
+                    </main>
+
+                    {/* Footer Utama */}
+                    <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
+                        <div className="container mx-auto px-6 relative z-10">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
+                                <div>
+                                    <div className="flex items-center gap-4 mb-6">
+                                        <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center">
+                                            <i className="fa-solid fa-shield-halved text-[#4A0E18] text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
+                                        </div>
+                                    </div>
+                                    <p className="text-sm text-white/70 leading-relaxed mb-6 max-w-sm">
+                                        Penyelenggara independen Pemilihan Kepala Desa Air Nyatoh Tahun 2026. Berkomitmen mewujudkan pemilihan yang transparan, jujur, dan berintegritas.
+                                    </p>
+                                    
+                                    {/* Tombol Rahasia Untuk Membuka Admin */}
+                                    <button onClick={() => setAdminMode(true)} className="text-xs text-[#C9A227] hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-wider py-2 px-4 rounded-lg bg-black/20 border border-white/10 cursor-pointer">
+                                        <i className="fa-solid fa-lock"></i> Login Dashboard Admin
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                      </div>
-                    )
-                  })
-                })()}
-              </div>
-            </div>
-          )}
-
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const AdminLogin = ({ onLogin, onCancel }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'admin123') {
-      setError('');
-      onLogin();
-    } else {
-      setError('Username atau password tidak valid!');
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-[#4A0E18] flex items-center justify-center p-6 relative overflow-hidden z-[100]">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#4A0E18] to-[#6B1725]"></div>
-      <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md relative z-10 animate-in zoom-in-95 duration-300">
-        <div className="w-16 h-16 bg-[#C9A227] rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner border-2 border-white">
-          <Shield className="text-[#4A0E18]" size={32} />
-        </div>
-        
-        <h2 className="text-2xl font-serif font-bold text-center text-[#4A0E18] mb-1">Login Admin Portal</h2>
-        <p className="text-gray-500 text-center text-sm mb-8">Pilkades Air Nyatoh 2026</p>
-
-        {error && (
-          <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 flex items-center gap-2 border border-red-200">
-            <AlertCircle size={16} /> {error}
-          </div>
-        )}
-
-        <form onSubmit={handleLogin} className="space-y-5">
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Username</label>
-            <div className="relative">
-              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin" />
-              <User className="absolute left-4 top-3.5 text-gray-400" size={18} />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">Password</label>
-            <div className="relative">
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin123" />
-              <Lock className="absolute left-4 top-3.5 text-gray-400" size={18} />
-            </div>
-          </div>
-          <button type="submit" className="w-full bg-[#4A0E18] text-white font-bold py-3.5 rounded-xl hover:bg-[#6B1725] transition-colors shadow-lg mt-4">
-            Masuk ke Sistem
-          </button>
-        </form>
-
-        <button onClick={onCancel} className="w-full mt-6 text-sm text-gray-500 hover:text-[#4A0E18] transition-colors">
-          &larr; Kembali ke Beranda
-        </button>
-      </div>
-    </div>
-  );
-};
-
-const AdminDashboard = ({ setAdminMode, dptLink, setDptLink, quickCountData, setQuickCountData }) => {
-  const [activeMenu, setActiveMenu] = useState('dashboard');
-  const [tempLink, setTempLink] = useState(dptLink);
-  const [saved, setSaved] = useState(false);
-
-  const handleSaveLink = (e) => {
-    e.preventDefault();
-    setDptLink(tempLink);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  };
-
-  const handleQuickCountChange = (index, value) => {
-    const val = parseInt(value) || 0;
-    const newData = [...quickCountData];
-    newData[index].suara = val;
-    setQuickCountData(newData);
-  };
-
-  return (
-    <div className="min-h-screen bg-gray-100 flex animate-in fade-in duration-300 fixed inset-0 z-[100]">
-      <aside className="w-64 bg-[#4A0E18] text-white flex flex-col h-full shadow-2xl shrink-0">
-        <div className="p-6 border-b border-white/10 flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#C9A227] rounded-lg flex items-center justify-center text-[#4A0E18] font-bold shadow-inner">
-            <Shield size={20} />
-          </div>
-          <div>
-            <h2 className="font-bold text-sm tracking-widest">PANITIA DESA</h2>
-            <p className="text-xs text-[#C9A227]">Admin Panel</p>
-          </div>
-        </div>
-        <nav className="flex-1 py-6 space-y-2 px-4">
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-            { id: 'quickcount', label: 'Hitung Cepat', icon: TrendingUp },
-            { id: 'pengaturan', label: 'Pengaturan Portal', icon: Settings },
-          ].map(menu => {
-            const MenuIcon = menu.icon;
-            return (
-              <button 
-                key={menu.id}
-                onClick={() => setActiveMenu(menu.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === menu.id ? 'bg-[#C9A227] text-[#4A0E18] shadow-md' : 'text-gray-300 hover:bg-white/10 hover:text-white'}`}
-              >
-                <MenuIcon size={18} /> {menu.label}
-              </button>
-            )
-          })}
-        </nav>
-        <div className="p-4 border-t border-white/10">
-          <button onClick={() => setAdminMode(false)} className="w-full flex items-center gap-3 px-4 py-3 text-sm text-red-300 hover:text-white hover:bg-red-900/50 rounded-xl transition-colors font-medium">
-            <LogOut size={18} /> Keluar Dashboard
-          </button>
-        </div>
-      </aside>
-
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-5xl mx-auto">
-          <header className="mb-8 flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 capitalize mb-1">{activeMenu.replace('-', ' ')}</h1>
-              <p className="text-gray-500 text-sm">Sistem Manajemen Portal Informasi Pilkades 2026</p>
-            </div>
-            <div className="flex items-center gap-2 text-sm bg-green-50 text-green-700 px-4 py-2 rounded-lg font-bold border border-green-200">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> Online
-            </div>
-          </header>
-
-          {activeMenu === 'dashboard' && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {[
-                  { label: 'Total Calon', val: '5', color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-100' },
-                  { label: 'Total TPS', val: '4', color: 'text-[#4A0E18]', bg: 'bg-red-50', border: 'border-red-100' },
-                  { label: 'Pengaduan', val: '0', color: 'text-[#C9A227]', bg: 'bg-yellow-50', border: 'border-yellow-100' },
-                  { label: 'Pengunjung', val: '1.2K', color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-100' },
-                ].map((stat, i) => (
-                  <div key={i} className={`p-6 rounded-2xl shadow-sm border ${stat.bg} ${stat.border}`}>
-                    <p className="text-gray-600 text-sm mb-2 font-medium">{stat.label}</p>
-                    <p className={`text-4xl font-black ${stat.color}`}>{stat.val}</p>
-                  </div>
-                ))}
-            </div>
-          )}
-
-          {activeMenu === 'quickcount' && (
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat (Quick Count)</h3>
-              <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon. Perubahan akan langsung terlihat pada halaman publik tab "Hitung Cepat".</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {quickCountData.map((calon, index) => (
-                  <div key={calon.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 flex flex-col justify-between">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: calon.warna }}>
-                        {calon.id}
-                      </div>
-                      <h4 className="font-bold text-gray-800">{calon.nama}</h4>
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Perolehan Suara</label>
-                      <input 
-                        type="number" min="0" value={calon.suara}
-                        onChange={(e) => handleQuickCountChange(index, e.target.value)}
-                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none font-bold text-xl bg-white"
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeMenu === 'pengaturan' && (
-            <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl">
-              <h3 className="text-lg font-bold text-gray-800 mb-2">Pengaturan URL Eksternal</h3>
-              <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Ubah tautan sistem DPT yang akan diakses masyarakat saat menekan tombol "Cek DPT".</p>
-              
-              <form onSubmit={handleSaveLink} className="space-y-5">
-                <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">URL Website Cek DPT</label>
-                  <input 
-                    type="url" value={tempLink} onChange={(e) => setTempLink(e.target.value)} required
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50"
-                  />
+                    </footer>
                 </div>
-                <div className="flex items-center gap-4 pt-2">
-                  <button type="submit" className="bg-[#4A0E18] text-white px-6 py-3 rounded-xl text-sm font-bold hover:bg-[#6B1725] transition-colors">
-                    Simpan Perubahan
-                  </button>
-                  {saved && <span className="text-green-600 text-sm font-bold flex items-center gap-1"><Check size={16}/> Tersimpan</span>}
-                </div>
-              </form>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
-  );
-};
+            );
+        }
 
-export default function App() {
-  const [view, setView] = useState('beranda');
-  const [subTab, setSubTab] = useState(null);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  
-  const [dptLink, setDptLink] = useState('https://dpt.kpu.go.id');
-  const [isAdminMode, setAdminMode] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  
-  const [quickCountData, setQuickCountData] = useState([
-    { id: 1, nama: "Calon No. Urut 1", suara: 0, warna: "#4A0E18" },
-    { id: 2, nama: "Calon No. Urut 2", suara: 0, warna: "#6B1725" },
-    { id: 3, nama: "Calon No. Urut 3", suara: 0, warna: "#C9A227" },
-    { id: 4, nama: "Calon No. Urut 4", suara: 0, warna: "#8C7B5D" },
-    { id: 5, nama: "Calon No. Urut 5", suara: 0, warna: "#241C1D" },
-  ]);
-
-  useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const navigate = (newView, newSubTab = null) => {
-    setView(newView);
-    setSubTab(newSubTab);
-    setIsMobileMenuOpen(false);
-    window.scrollTo(0, 0);
-  };
-
-  const menuItems = [
-    { id: 'beranda', label: 'BERANDA' },
-    { id: 'profil', label: 'PROFIL' },
-    { id: 'informasi', label: 'INFORMASI' },
-  ];
-
-  return (
-    <div className="font-sans flex flex-col min-h-screen text-[#241C1D] bg-[#F8F7F3]">
-      
-      {isAdminMode && (
-        !isLoggedIn ? 
-        <AdminLogin onLogin={() => setIsLoggedIn(true)} onCancel={() => setAdminMode(false)} /> :
-        <AdminDashboard setAdminMode={setAdminMode} dptLink={dptLink} setDptLink={setDptLink} quickCountData={quickCountData} setQuickCountData={setQuickCountData} />
-      )}
-
-      <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${isScrolled ? 'bg-[#4A0E18] shadow-lg py-3' : 'bg-[#4A0E18]/95 backdrop-blur-sm py-5 border-b border-white/10'}`}>
-        <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
-          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigate('beranda')}>
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform">
-              <Shield className="text-[#4A0E18] w-6 h-6 md:w-7 md:h-7" />
-            </div>
-            <div className="flex flex-col text-white">
-              <span className="text-[10px] md:text-xs font-bold tracking-widest text-[#C9A227]">PANITIA PEMILIHAN</span>
-              <span className="text-sm md:text-base font-bold font-serif leading-tight">DESA AIR NYATOH</span>
-            </div>
-          </div>
-          <nav className="hidden md:flex gap-8 items-center">
-            {menuItems.map(item => (
-              <button 
-                key={item.id} onClick={() => navigate(item.id)}
-                className={`text-sm font-bold tracking-wide transition-colors relative group py-2 ${view === item.id ? 'text-[#C9A227]' : 'text-white hover:text-[#C9A227]'}`}
-              >
-                {item.label}
-                {view === item.id && <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#C9A227] rounded-full"></span>}
-              </button>
-            ))}
-          </nav>
-          <button className="md:hidden text-white p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-            {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
-        </div>
-        
-        {isMobileMenuOpen && (
-          <div className="md:hidden absolute top-full left-0 w-full bg-[#4A0E18] border-t border-white/10 shadow-xl py-2 flex flex-col animate-in slide-in-from-top-2">
-            {menuItems.map(item => (
-              <button 
-                key={item.id} onClick={() => navigate(item.id)}
-                className={`py-4 px-6 text-left text-sm font-bold tracking-wide border-b border-white/5 ${view === item.id ? 'text-[#C9A227] bg-black/10' : 'text-white'}`}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-        )}
-      </header>
-
-      <main className="flex-grow pt-[72px] md:pt-[88px]">
-        {view === 'beranda' && <Beranda dptLink={dptLink} setView={navigate} />}
-        {view === 'profil' && <Profil />}
-        {view === 'informasi' && <Informasi initialTab={subTab} dptLink={dptLink} quickCountData={quickCountData} />}
-      </main>
-
-      <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
-            <div>
-              <div className="flex items-center gap-4 mb-6">
-                <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center">
-                  <Shield className="text-[#4A0E18] w-7 h-7" />
-                </div>
-                <div>
-                  <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
-                </div>
-              </div>
-              <p className="text-sm text-white/70 leading-relaxed mb-6 max-w-sm">
-                Penyelenggara independen Pemilihan Kepala Desa Air Nyatoh Tahun 2026. Berkomitmen mewujudkan pemilihan yang transparan, jujur, dan berintegritas.
-              </p>
-              <button onClick={() => setAdminMode(true)} className="text-xs text-[#C9A227] hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-wider py-2 px-4 rounded-lg bg-black/20 border border-white/10">
-                <Lock size={14}/> Login Admin
-              </button>
-            </div>
-          </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
