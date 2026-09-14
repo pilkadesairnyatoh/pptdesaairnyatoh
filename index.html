@@ -461,7 +461,6 @@
 
             const prosesMasuk = (e) => {
                 e.preventDefault();
-                // Simulasi autentikasi statis
                 if (namaPengguna === 'admin' && kataSandi === 'admin123') {
                     aturPesanEror('');
                     saatMasuk();
@@ -533,7 +532,6 @@
                 aturDataHitungCepat(dataBaru);
             };
 
-            // FUNGSI UNGGAH FOTO KE SUPABASE STORAGE & DATABASE
             const prosesUnggahFoto = async (e) => {
                 const berkas = e.target.files[0];
                 if (!berkas) return;
@@ -550,19 +548,16 @@
                 try {
                     const namaUnik = Date.now() + '_' + berkas.name;
                     
-                    // 1. Unggah fisik ke Storage Supabase
                     const { error: errorUpload } = await klienSupabase.storage
                         .from('galeriPilkades')
                         .upload(namaUnik, berkas);
                         
                     if (errorUpload) throw errorUpload;
 
-                    // 2. Dapatkan URL Publik
                     const { data: dataUrl } = klienSupabase.storage
                         .from('galeriPilkades')
                         .getPublicUrl(namaUnik);
 
-                    // 3. Simpan tautan ke Tabel Database 'galeri'
                     const { error: errorDb } = await klienSupabase
                         .from('galeri')
                         .insert([{ url: dataUrl.publicUrl, id_foto: namaUnik }]);
@@ -570,7 +565,7 @@
                     if (errorDb) throw errorDb;
 
                     alert("Foto berhasil diunggah!");
-                    muatUlangGaleri(); // Memperbarui data foto setelah sukses unggah
+                    muatUlangGaleri(); 
                 } catch (kesalahan) {
                     console.error("Gagal mengunggah:", kesalahan);
                     alert("Gagal mengunggah foto. Pastikan konfigurasi Supabase sudah benar.");
@@ -581,18 +576,14 @@
                 }
             };
 
-            // FUNGSI HAPUS FOTO DARI SUPABASE
             const hapusFoto = async (idDokumen, idFotoPenyimpanan) => {
                 if(window.confirm("Yakin ingin menghapus foto ini?")) {
                     try {
-                        // Hapus dari tabel database
                         await klienSupabase.from('galeri').delete().eq('id', idDokumen);
-                        
-                        // Hapus berkas fisik dari storage
                         if (idFotoPenyimpanan) {
                             await klienSupabase.storage.from('galeriPilkades').remove([idFotoPenyimpanan]);
                         }
-                        muatUlangGaleri(); // Memperbarui data foto setelah sukses hapus
+                        muatUlangGaleri(); 
                     } catch (kesalahan) {
                         console.error("Gagal menghapus:", kesalahan);
                     }
@@ -601,7 +592,6 @@
 
             return (
                 <div className="min-h-screen bg-gray-100 flex animasi-memudar fixed inset-0 z-[100]">
-                    {/* Menu Samping Admin */}
                     <aside className="w-64 bg-[#4A0E18] text-white flex flex-col h-full shadow-2xl shrink-0">
                         <div className="p-6 border-b border-white/10 flex items-center gap-3">
                             <div className="w-10 h-10 bg-[#C9A227] rounded-lg flex items-center justify-center text-[#4A0E18] font-bold shadow-inner">
@@ -635,7 +625,6 @@
                         </div>
                     </aside>
 
-                    {/* Area Konten Admin */}
                     <main className="flex-1 p-8 overflow-y-auto">
                         <div className="max-w-5xl mx-auto">
                             <header className="mb-8 flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -672,7 +661,7 @@
                             {menuAktif === 'galeri' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri (Penyimpanan Awan Supabase)</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda. Data tersimpan dengan aman tanpa masalah ukuran berlebih.</p>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda.</p>
                                     
                                     <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
                                         <label className="block text-sm font-bold text-gray-700 mb-4 text-center">Pilih Foto Untuk Diunggah</label>
@@ -707,7 +696,7 @@
                             {menuAktif === 'hitungcepat' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat - 5 Calon</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon. Perubahan akan langsung terlihat pada halaman publik tab "Hitung Cepat".</p>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon.</p>
                                     
                                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {dataHitungCepat.map((calon, indeks) => (
@@ -735,7 +724,7 @@
                             {menuAktif === 'pengaturan' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 max-w-2xl animasi-memudar">
                                     <h3 className="text-lg font-bold text-gray-800 mb-2">Pengaturan Tautan Eksternal DPT</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Ubah tautan sistem DPT yang akan diakses masyarakat saat menekan tombol "Cek DPT".</p>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Ubah tautan sistem DPT yang akan diakses masyarakat.</p>
                                     
                                     <form onSubmit={simpanTautan} className="space-y-5">
                                         <div>
@@ -765,24 +754,18 @@
             const [sudahDigulir, aturSudahDigulir] = useState(false);
             const [menuPonselTerbuka, aturMenuPonselTerbuka] = useState(false);
             
-            // Status Global Aplikasi
             const [tautanDpt, aturTautanDpt] = useState('https://pptairnyatoh-spec.github.io/cekdptpilkadesairnyatoh');
             const [modeAdmin, aturModeAdmin] = useState(false);
             const [sudahMasuk, aturSudahMasuk] = useState(false);
-            
-            // Status Galeri Foto
             const [galeriFoto, aturGaleriFoto] = useState([]);
             
-            // FUNGSI MENGAMBIL DATA GALERI DARI SUPABASE SAAT APLIKASI DIMUAT
             const ambilDataGaleri = async () => {
-                if (urlSupabase.includes("MASUKKAN")) return; // Mencegah eror jika URL belum diisi
-                
+                if (urlSupabase.includes("MASUKKAN")) return; 
                 try {
                     const { data, error } = await klienSupabase
                         .from('galeri')
                         .select('*')
                         .order('created_at', { ascending: false });
-                        
                     if (error) throw error;
                     aturGaleriFoto(data || []);
                 } catch (kesalahan) {
@@ -794,7 +777,6 @@
                 ambilDataGaleri();
             }, []);
             
-            // Data 5 Calon Kades
             const [dataHitungCepat, aturDataHitungCepat] = useState([
                 { id: 1, nama: "Calon No. Urut 1", suara: 0, warna: "#4A0E18" },
                 { id: 2, nama: "Calon No. Urut 2", suara: 0, warna: "#6B1725" },
@@ -822,8 +804,6 @@
 
             return (
                 <div className="font-sans flex flex-col min-h-screen text-[#241C1D] bg-[#F8F7F3]">
-                    
-                    {/* Logika Sistem Admin */}
                     {modeAdmin && (
                         !sudahMasuk ? 
                         <MasukAdmin saatMasuk={() => aturSudahMasuk(true)} saatBatal={() => aturModeAdmin(false)} /> :
@@ -834,7 +814,6 @@
                         />
                     )}
 
-                    {/* Navigasi / Header Utama */}
                     <header className={`fixed w-full top-0 z-50 transition-all duration-300 ${sudahDigulir ? 'bg-[#4A0E18] shadow-lg py-3' : 'bg-[#4A0E18] py-5 border-b border-white/10'}`}>
                         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
                             <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigasi('beranda')}>
@@ -864,7 +843,6 @@
                             </button>
                         </div>
                         
-                        {/* Menu Jatuh Ponsel */}
                         {menuPonselTerbuka && (
                             <div className="md:hidden absolute top-full left-0 w-full bg-[#4A0E18] border-t border-white/10 shadow-xl py-2 flex flex-col animasi-naik">
                                 {daftarMenu.map(item => (
@@ -879,20 +857,19 @@
                         )}
                     </header>
 
-                    {/* Perutean Tubuh */}
                     <main className="flex-grow">
                         {tampilan === 'beranda' && <Beranda tautanDpt={tautanDpt} aturTampilan={navigasi} galeriFoto={galeriFoto} />}
                         {tampilan === 'informasi' && <Informasi tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} />}
                     </main>
 
-                    {/* Kaki Utama */}
+                    {/* Kaki Utama (FOOTER) dengan logopptd */}
                     <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
                         <div className="container mx-auto px-6 relative z-10">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
                                 <div>
                                     <div className="flex items-center gap-4 mb-6">
-                                        <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center">
-                                            <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />>
+                                        <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20 shrink-0 shadow-inner">
+                                            <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
                                         </div>
                                         <div>
                                             <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
@@ -902,7 +879,6 @@
                                         Penyelenggara independen Pemilihan Kepala Desa Air Nyatoh Tahun 2026. Berkomitmen mewujudkan pemilihan yang transparan, jujur, dan berintegritas.
                                     </p>
                                     
-                                    {/* Tombol Rahasia Untuk Membuka Admin */}
                                     <button onClick={() => aturModeAdmin(true)} className="text-xs text-[#C9A227] hover:text-white flex items-center gap-1.5 transition-colors font-bold uppercase tracking-wider py-2 px-4 rounded-lg bg-black/20 border border-white/10 cursor-pointer">
                                         <i className="fa-solid fa-lock"></i> Masuk Dasbor Admin
                                     </button>
