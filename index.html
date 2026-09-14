@@ -21,11 +21,8 @@
     <!-- Babel untuk menerjemahkan JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Firebase SDK (Menggunakan Firestore & Storage) -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-    <!-- SKRIP BARU UNTUK FIREBASE STORAGE -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <!-- Supabase SDK (Pengganti Firebase) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
         body { 
@@ -50,23 +47,13 @@
 
     <script type="text/babel">
         // ==========================================
-        // KONFIGURASI FIREBASE FIRESTORE & STORAGE
+        // KONFIGURASI SUPABASE (PENGGANTI FIREBASE)
         // ==========================================
-        const konfigurasiFirebase = {
-            apiKey: "AIzaSyBr2RivjMXiHff3-ycLq2mM_K-n6FoerkY",
-            authDomain: "webpptdesaairnyatoh.firebaseapp.com",
-            projectId: "webpptdesaairnyatoh",
-            storageBucket: "webpptdesaairnyatoh.firebasestorage.app",
-            messagingSenderId: "451197145949",
-            appId: "1:451197145949:web:6f7d1357f5fbc377b90eb4",
-            measurementId: "G-KB09C7773X"
-        };
-
-        // Inisialisasi Firebase & Firestore
-        if (!firebase.apps.length) {
-            firebase.initializeApp(konfigurasiFirebase);
-        }
-        const basisData = firebase.firestore();
+        const urlSupabase = "sb_publishable_7Pxv5-fJn0jqsY5MU1M1hA_jINUvy-c";
+        const kunciAnon = "sb_secret_4wXNxMR-RyI4EVDGHu0xtQ_Zsh6jNjF";
+        
+        const { createClient } = window.supabase;
+        const klienSupabase = createClient(urlSupabase, kunciAnon);
         // ==========================================
 
         const { useState, useEffect } = React;
@@ -155,12 +142,12 @@
                                     </div>
                                 </div>
 
-                                {/* KOLOM KANAN: GALERI DOKUMENTASI FIRESTORE */}
+                                {/* KOLOM KANAN: GALERI DOKUMENTASI */}
                                 <div className="relative w-full h-[350px] md:h-[450px] bg-white/5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group flex items-center justify-center">
                                     {galeriFoto && galeriFoto.length > 0 ? (
                                         <>
                                             {galeriFoto.map((foto, indeks) => (
-                                                <div key={foto.id} className={`absolute inset-0 transition-opacity duration-1000 ${gambarSaatIni === indeks ? 'opacity-100' : 'opacity-0'}`}>
+                                                <div key={foto.id || indeks} className={`absolute inset-0 transition-opacity duration-1000 ${gambarSaatIni === indeks ? 'opacity-100' : 'opacity-0'}`}>
                                                     <img src={foto.url} alt={`Dokumentasi ${indeks + 1}`} className="w-full h-full object-cover" />
                                                 </div>
                                             ))}
@@ -527,7 +514,7 @@
             );
         };
 
-        const DasborAdmin = ({ aturModeAdmin, tautanDpt, aturTautanDpt, dataHitungCepat, aturDataHitungCepat, galeriFoto }) => {
+        const DasborAdmin = ({ aturModeAdmin, tautanDpt, aturTautanDpt, dataHitungCepat, aturDataHitungCepat, galeriFoto, muatUlangGaleri }) => {
             const [menuAktif, aturMenuAktif] = useState('dasbor');
             const [tautanSementara, aturTautanSementara] = useState(tautanDpt);
             const [tersimpan, aturTersimpan] = useState(false);
@@ -546,53 +533,69 @@
                 aturDataHitungCepat(dataBaru);
             };
 
-            // FUNGSI UNGGAH FOTO KE FIREBASE STORAGE & FIRESTORE
+            // FUNGSI UNGGAH FOTO KE SUPABASE STORAGE & DATABASE
             const prosesUnggahFoto = async (e) => {
                 const berkas = e.target.files[0];
-                if (berkas) {
-                    // Batasi ukuran berkas maksimal 5 MB
-                    if (berkas.size > 5 * 1024 * 1024) {
-                        alert("Ukuran foto terlalu besar! Maksimal 5 MB.");
-                        return;
-                    }
+                if (!berkas) return;
+                
+                if (berkas.size > 5 * 1024 * 1024) {
+                    alert("Ukuran foto terlalu besar! Maksimal 5 MB.");
+                    return;
+                }
 
-                    // Tampilkan indikator proses pemuatan
-                    e.target.disabled = true;
-                    const teksLabelAsli = e.target.previousElementSibling.innerText;
-                    e.target.previousElementSibling.innerText = "Mengunggah... Mohon tunggu";
+                e.target.disabled = true;
+                const teksLabelAsli = e.target.previousElementSibling.innerText;
+                e.target.previousElementSibling.innerText = "Mengunggah... Mohon tunggu";
 
-                    try {
-                        // 1. Unggah berkas ke Firebase Storage
-                        const referensiPenyimpanan = firebase.storage().ref();
-                        const referensiBerkas = referensiPenyimpanan.child('galeriPilkades/' + Date.now() + '_' + berkas.name);
+                try {
+                    const namaUnik = Date.now() + '_' + berkas.name;
+                    
+                    // 1. Unggah fisik ke Storage Supabase
+                    const { error: errorUpload } = await klienSupabase.storage
+                        .from('galeriPilkades')
+                        .upload(namaUnik, berkas);
                         
-                        await referensiBerkas.put(berkas);
+                    if (errorUpload) throw errorUpload;
+
+                    // 2. Dapatkan URL Publik
+                    const { data: dataUrl } = klienSupabase.storage
+                        .from('galeriPilkades')
+                        .getPublicUrl(namaUnik);
+
+                    // 3. Simpan tautan ke Tabel Database 'galeri'
+                    const { error: errorDb } = await klienSupabase
+                        .from('galeri')
+                        .insert([{ url: dataUrl.publicUrl, id_foto: namaUnik }]);
                         
-                        // 2. Dapatkan tautan unduhan (URL pendek)
-                        const tautanUnduhan = await referensiBerkas.getDownloadURL();
+                    if (errorDb) throw errorDb;
 
-                        // 3. Simpan tautan tersebut ke basis data Firestore
-                        await basisData.collection('galeriPilkades').add({
-                            url: tautanUnduhan,
-                            waktu: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-
-                        alert("Foto berhasil diunggah!");
-                    } catch (error) {
-                        console.error("Gagal mengunggah:", error);
-                        alert("Gagal mengunggah foto. Pastikan koneksi stabil dan Storage sudah aktif.");
-                    } finally {
-                        e.target.value = ''; // Mengatur ulang kolom unggah
-                        e.target.disabled = false;
-                        e.target.previousElementSibling.innerText = teksLabelAsli;
-                    }
+                    alert("Foto berhasil diunggah!");
+                    muatUlangGaleri(); // Memperbarui data foto setelah sukses unggah
+                } catch (kesalahan) {
+                    console.error("Gagal mengunggah:", kesalahan);
+                    alert("Gagal mengunggah foto. Pastikan konfigurasi Supabase sudah benar.");
+                } finally {
+                    e.target.value = '';
+                    e.target.disabled = false;
+                    e.target.previousElementSibling.innerText = teksLabelAsli;
                 }
             };
 
-            // FUNGSI HAPUS FOTO DARI FIRESTORE DATABASE
-            const hapusFoto = (id) => {
+            // FUNGSI HAPUS FOTO DARI SUPABASE
+            const hapusFoto = async (idDokumen, idFotoPenyimpanan) => {
                 if(window.confirm("Yakin ingin menghapus foto ini?")) {
-                    basisData.collection('galeriPilkades').doc(id).delete();
+                    try {
+                        // Hapus dari tabel database
+                        await klienSupabase.from('galeri').delete().eq('id', idDokumen);
+                        
+                        // Hapus berkas fisik dari storage
+                        if (idFotoPenyimpanan) {
+                            await klienSupabase.storage.from('galeriPilkades').remove([idFotoPenyimpanan]);
+                        }
+                        muatUlangGaleri(); // Memperbarui data foto setelah sukses hapus
+                    } catch (kesalahan) {
+                        console.error("Gagal menghapus:", kesalahan);
+                    }
                 }
             };
 
@@ -668,7 +671,7 @@
 
                             {menuAktif === 'galeri' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri (Penyimpanan Awan Firebase)</h3>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Galeri (Penyimpanan Awan Supabase)</h3>
                                     <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto kegiatan untuk ditampilkan otomatis pada bagian kanan halaman beranda. Data tersimpan dengan aman tanpa masalah ukuran berlebih.</p>
                                     
                                     <div className="mb-8 p-6 bg-gray-50 rounded-xl border border-dashed border-gray-300">
@@ -686,7 +689,7 @@
                                                 <div key={foto.id} className="relative group rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-video bg-gray-100">
                                                     <img src={foto.url} alt={`Galeri`} className="w-full h-full object-cover" />
                                                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                                        <button onClick={() => hapusFoto(foto.id)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-600 shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
+                                                        <button onClick={() => hapusFoto(foto.id, foto.id_foto)} className="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-red-600 shadow-lg flex items-center gap-2 transform translate-y-4 group-hover:translate-y-0 transition-all">
                                                             <i className="fa-solid fa-trash"></i> Hapus
                                                         </button>
                                                     </div>
@@ -767,21 +770,28 @@
             const [modeAdmin, aturModeAdmin] = useState(false);
             const [sudahMasuk, aturSudahMasuk] = useState(false);
             
-            // Status Galeri Foto (Data dari Firestore)
+            // Status Galeri Foto
             const [galeriFoto, aturGaleriFoto] = useState([]);
             
-            // MENGAMBIL DATA GALERI DARI FIRESTORE SAAT APLIKASI DIMUAT
-            useEffect(() => {
-                const berhentiBerlangganan = basisData.collection('galeriPilkades').onSnapshot((tangkapanLayar) => {
-                    const daftarFoto = tangkapanLayar.docs.map(dokumen => ({
-                        id: dokumen.id,
-                        url: dokumen.data().url
-                    }));
-                    aturGaleriFoto(daftarFoto);
-                });
+            // FUNGSI MENGAMBIL DATA GALERI DARI SUPABASE SAAT APLIKASI DIMUAT
+            const ambilDataGaleri = async () => {
+                if (urlSupabase.includes("MASUKKAN")) return; // Mencegah eror jika URL belum diisi
+                
+                try {
+                    const { data, error } = await klienSupabase
+                        .from('galeri')
+                        .select('*')
+                        .order('created_at', { ascending: false });
+                        
+                    if (error) throw error;
+                    aturGaleriFoto(data || []);
+                } catch (kesalahan) {
+                    console.error("Gagal mengambil galeri:", kesalahan);
+                }
+            };
 
-                // Bersihkan pendengar saat komponen ditutup
-                return () => berhentiBerlangganan();
+            useEffect(() => {
+                ambilDataGaleri();
             }, []);
             
             // Data 5 Calon Kades
@@ -820,7 +830,7 @@
                         <DasborAdmin 
                             aturModeAdmin={aturModeAdmin} tautanDpt={tautanDpt} aturTautanDpt={aturTautanDpt} 
                             dataHitungCepat={dataHitungCepat} aturDataHitungCepat={aturDataHitungCepat} 
-                            galeriFoto={galeriFoto} 
+                            galeriFoto={galeriFoto} muatUlangGaleri={ambilDataGaleri}
                         />
                     )}
 
