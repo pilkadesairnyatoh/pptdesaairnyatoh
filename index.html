@@ -58,39 +58,76 @@
 
         const { useState, useEffect } = React;
 
-        const JADWAL_SINGKAT = [
-            { id: 1, nama: "Persiapan & Pembentukan", mulai: "6 Jul", selesai: "4 Ags 2026", status: "selesai" },
-            { id: 2, nama: "Pendaftaran Bakal Calon", mulai: "6 Ags", selesai: "19 Ags 2026", status: "selesai" },
-            { id: 3, nama: "Verifikasi & Klarifikasi", mulai: "20 Ags", selesai: "11 Sep 2026", status: "aktif" },
-            { id: 4, nama: "Penetapan Calon", mulai: "14 Sep", selesai: "24 Sep 2026", status: "mendatang" },
-            { id: 5, nama: "Daftar Pemilih (DPT)", mulai: "28 Sep", selesai: "30 Okt 2026", status: "mendatang" },
-            { id: 6, nama: "Kampanye & Masa Tenang", mulai: "10 Nov", selesai: "17 Nov 2026", status: "mendatang" },
-            { id: 7, nama: "Pemungutan Suara", mulai: "18 Nov", selesai: "20 Nov 2026", status: "mendatang" },
-            { id: 8, nama: "Pelantikan", mulai: "28 Jan", selesai: "5 Feb 2027", status: "mendatang" },
+        // Fungsi Helper untuk menghitung status jadwal secara otomatis (real-time)
+        const hitungStatusRealTime = (mulaiStr, selesaiStr, isTahunBerikutnya = false) => {
+            const hariIni = new Date();
+            hariIni.setHours(0,0,0,0);
+
+            const bulanMap = { "Jan": 0, "Feb": 1, "Mar": 2, "Apr": 3, "Mei": 4, "Jun": 5, "Jul": 6, "Ags": 7, "Sep": 8, "Okt": 9, "Nov": 10, "Des": 11 };
+            
+            const buatTanggal = (str, isTahunDepan) => {
+                const parts = str.replace(" 2026", "").replace(" 2027", "").trim().split(" ");
+                const tanggal = parseInt(parts[0]);
+                const bulan = bulanMap[parts[1]];
+                const tahun = isTahunDepan ? 2027 : 2026;
+                return new Date(tahun, bulan, tanggal);
+            };
+
+            const tglMulai = buatTanggal(mulaiStr, mulaiStr.includes("Jan") || mulaiStr.includes("Feb"));
+            const tglSelesai = buatTanggal(selesaiStr, isTahunBerikutnya || selesaiStr.includes("Jan") || selesaiStr.includes("Feb"));
+
+            if (hariIni > tglSelesai) {
+                return 'selesai';
+            } else if (hariIni >= tglMulai && hariIni <= tglSelesai) {
+                return 'aktif';
+            } else {
+                return 'mendatang';
+            }
+        };
+
+        const JADWAL_SINGKAT_MENTAH = [
+            { id: 1, nama: "Persiapan & Pembentukan", mulai: "6 Jul", selesai: "4 Ags 2026" },
+            { id: 2, nama: "Pendaftaran Bakal Calon", mulai: "6 Ags", selesai: "19 Ags 2026" },
+            { id: 3, nama: "Verifikasi & Klarifikasi", mulai: "20 Ags", selesai: "11 Sep 2026" },
+            { id: 4, nama: "Penetapan Calon", mulai: "14 Sep", selesai: "24 Sep 2026" },
+            { id: 5, nama: "Daftar Pemilih (DPT)", mulai: "28 Sep", selesai: "30 Okt 2026" },
+            { id: 6, nama: "Kampanye & Masa Tenang", mulai: "10 Nov", selesai: "17 Nov 2026" },
+            { id: 7, nama: "Pemungutan Suara", mulai: "18 Nov", selesai: "20 Nov 2026" },
+            { id: 8, nama: "Pelantikan", mulai: "28 Jan", selesai: "5 Feb 2027", isTahunBerikutnya: true },
         ];
 
-        const JADWAL_LENGKAP = [
-            { id: 1, tahap: "PERSIAPAN", nama: "Rapat koordinasi persiapan dan pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "6 Jul 2026", selesai: "6 Jul 2026", status: "selesai" },
-            { id: 2, tahap: "PERSIAPAN", nama: "Pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "31 Jul 2026", selesai: "31 Jul 2026", status: "selesai" },
-            { id: 3, tahap: "PERSIAPAN", nama: "Rapat koordinasi PPTD dengan PPT Desa", mulai: "4 Ags 2026", selesai: "4 Ags 2026", status: "selesai" },
-            { id: 4, tahap: "PENCALONAN", nama: "Pengumuman dan pendaftaran bakal calon Kepala Desa oleh PPT Desa", mulai: "6 Ags 2026", selesai: "19 Ags 2026", status: "selesai" },
-            { id: 5, tahap: "PENCALONAN", nama: "Verifikasi dan validasi kelengkapan persyaratan administrasi bakal calon kepala desa", mulai: "20 Ags 2026", selesai: "21 Ags 2026", status: "selesai" },
-            { id: 6, tahap: "PENCALONAN", nama: "Perbaikan hasil verifikasi dan validasi kelengkapan persyaratan administrasi", mulai: "24 Ags 2026", selesai: "28 Ags 2026", status: "selesai" },
-            { id: 7, tahap: "PENCALONAN", nama: "Klarifikasi persyaratan administrasi bakal calon kepala desa", mulai: "31 Ags 2026", selesai: "11 Sep 2026", status: "aktif" },
-            { id: 8, tahap: "PENCALONAN", nama: "Penetapan bakal calon kepala desa yang memenuhi persyaratan administrasi", mulai: "14 Sep 2026", selesai: "14 Sep 2026", status: "mendatang" },
-            { id: 9, tahap: "PENCALONAN", nama: "Laporan hasil verifikasi dan validasi Persyaratan Administrasi serta klarifikasi", mulai: "15 Sep 2026", selesai: "16 Sep 2026", status: "mendatang" },
-            { id: 10, tahap: "PENCALONAN", nama: "Pelaksanaan seleksi tambahan (jika > 5 calon) & Penetapan peringkat", mulai: "18 Sep 2026", selesai: "22 Sep 2026", status: "mendatang" },
-            { id: 11, tahap: "PENCALONAN", nama: "Penetapan menjadi calon, Pengundian nomor urut & Pengumuman", mulai: "23 Sep 2026", selesai: "24 Sep 2026", status: "mendatang" },
-            { id: 12, tahap: "PEMUTAKHIRAN", nama: "Penyusunan s.d. Penetapan Daftar Pemilih Tetap (DPT)", mulai: "28 Sep 2026", selesai: "30 Okt 2026", status: "mendatang" },
-            { id: 13, tahap: "LOGISTIK", nama: "Penyediaan perlengkapan pemungutan dan perhitungan suara", mulai: "2 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
-            { id: 14, tahap: "KAMPANYE", nama: "Pelaksanaan kampanye calon kepala desa", mulai: "10 Nov 2026", selesai: "12 Nov 2026", status: "mendatang" },
-            { id: 15, tahap: "MASA TENANG", nama: "Penyampaian undangan kepada pemilih & Masa tenang", mulai: "10 Nov 2026", selesai: "17 Nov 2026", status: "mendatang" },
-            { id: 16, tahap: "PEMUNGUTAN", nama: "Pemungutan dan Penghitungan suara di TPS & Rekapitulasi", mulai: "18 Nov 2026", selesai: "20 Nov 2026", status: "mendatang" },
-            { id: 17, tahap: "PENETAPAN", nama: "Penetapan calon kepala desa terpilih", mulai: "23 Nov 2026", selesai: "24 Nov 2026", status: "mendatang" },
-            { id: 18, tahap: "PELAPORAN", nama: "Penyampaian laporan hasil pemilihan kepala desa kepada Bupati", mulai: "25 Nov 2026", selesai: "3 Des 2026", status: "mendatang" },
-            { id: 19, tahap: "SENGKETA", nama: "Penyelesaian perselisihan/sengketa pemilihan", mulai: "7 Des 2026", selesai: "18 Des 2026", status: "mendatang" },
-            { id: 20, tahap: "PELANTIKAN", nama: "Pengesahan dan Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", status: "mendatang" }
+        const JADWAL_SINGKAT = JADWAL_SINGKAT_MENTAH.map(tahap => ({
+            ...tahap,
+            status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
+        }));
+
+        const JADWAL_LENGKAP_MENTAH = [
+            { id: 1, tahap: "PERSIAPAN", nama: "Rapat koordinasi persiapan dan pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "6 Jul 2026", selesai: "6 Jul 2026" },
+            { id: 2, tahap: "PERSIAPAN", nama: "Pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "31 Jul 2026", selesai: "31 Jul 2026" },
+            { id: 3, tahap: "PERSIAPAN", nama: "Rapat koordinasi PPTD dengan PPT Desa", mulai: "4 Ags 2026", selesai: "4 Ags 2026" },
+            { id: 4, tahap: "PENCALONAN", nama: "Pengumuman dan pendaftaran bakal calon Kepala Desa oleh PPT Desa", mulai: "6 Ags 2026", selesai: "19 Ags 2026" },
+            { id: 5, tahap: "PENCALONAN", nama: "Verifikasi dan validasi kelengkapan persyaratan administrasi bakal calon kepala desa", mulai: "20 Ags 2026", selesai: "21 Ags 2026" },
+            { id: 6, tahap: "PENCALONAN", nama: "Perbaikan hasil verifikasi dan validasi kelengkapan persyaratan administrasi", mulai: "24 Ags 2026", selesai: "28 Ags 2026" },
+            { id: 7, tahap: "PENCALONAN", nama: "Klarifikasi persyaratan administrasi bakal calon kepala desa", mulai: "31 Ags 2026", selesai: "11 Sep 2026" },
+            { id: 8, tahap: "PENCALONAN", nama: "Penetapan bakal calon kepala desa yang memenuhi persyaratan administrasi", mulai: "14 Sep 2026", selesai: "14 Sep 2026" },
+            { id: 9, tahap: "PENCALONAN", nama: "Laporan hasil verifikasi dan validasi Persyaratan Administrasi serta klarifikasi", mulai: "15 Sep 2026", selesai: "16 Sep 2026" },
+            { id: 10, tahap: "PENCALONAN", nama: "Pelaksanaan seleksi tambahan (jika > 5 calon) & Penetapan peringkat", mulai: "18 Sep 2026", selesai: "22 Sep 2026" },
+            { id: 11, tahap: "PENCALONAN", nama: "Penetapan menjadi calon, Pengundian nomor urut & Pengumuman", mulai: "23 Sep 2026", selesai: "24 Sep 2026" },
+            { id: 12, tahap: "PEMUTAKHIRAN", nama: "Penyusunan s.d. Penetapan Daftar Pemilih Tetap (DPT)", mulai: "28 Sep 2026", selesai: "30 Okt 2026" },
+            { id: 13, tahap: "LOGISTIK", nama: "Penyediaan perlengkapan pemungutan dan perhitungan suara", mulai: "2 Nov 2026", selesai: "17 Nov 2026" },
+            { id: 14, tahap: "KAMPANYE", nama: "Pelaksanaan kampanye calon kepala desa", mulai: "10 Nov 2026", selesai: "12 Nov 2026" },
+            { id: 15, tahap: "MASA TENANG", nama: "Penyampaian undangan kepada pemilih & Masa tenang", mulai: "10 Nov 2026", selesai: "17 Nov 2026" },
+            { id: 16, tahap: "PEMUNGUTAN", nama: "Pemungutan dan Penghitungan suara di TPS & Rekapitulasi", mulai: "18 Nov 2026", selesai: "20 Nov 2026" },
+            { id: 17, tahap: "PENETAPAN", nama: "Penetapan calon kepala desa terpilih", mulai: "23 Nov 2026", selesai: "24 Nov 2026" },
+            { id: 18, tahap: "PELAPORAN", nama: "Penyampaian laporan hasil pemilihan kepala desa kepada Bupati", mulai: "25 Nov 2026", selesai: "3 Des 2026" },
+            { id: 19, tahap: "SENGKETA", nama: "Penyelesaian perselisihan/sengketa pemilihan", mulai: "7 Des 2026", selesai: "18 Des 2026" },
+            { id: 20, tahap: "PELANTIKAN", nama: "Pengesahan dan Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", isTahunBerikutnya: true }
         ];
+
+        const JADWAL_LENGKAP = JADWAL_LENGKAP_MENTAH.map(tahap => ({
+            ...tahap,
+            status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
+        }));
 
         const JudulBagian = ({ judul, subjudul, diTengah = true }) => (
             <div className={`mb-10 ${diTengah ? 'text-center' : 'text-left'}`}>
@@ -100,7 +137,7 @@
             </div>
         );
 
-        const Beranda = ({ tautanDpt, aturTampilan, galeriFoto }) => {
+        const Beranda = ({ tautanDpt, aturTampilan, galeriFoto, JADWAL_SINGKAT }) => {
             const [gambarSaatIni, aturGambarSaatIni] = useState(0);
 
             useEffect(() => {
@@ -299,7 +336,7 @@
             );
         };
 
-        const Informasi = ({ tabAwal, tautanDpt, dataHitungCepat }) => {
+        const Informasi = ({ tabAwal, tautanDpt, dataHitungCepat, JADWAL_LENGKAP }) => {
             const [tabAktif, aturTabAktif] = useState(tabAwal || 'jadwal');
             
             const daftarTab = [
@@ -379,7 +416,7 @@
                                         <i className="fa-solid fa-users text-4xl text-gray-300"></i>
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-600 mb-2">Penetapan Calon Belum Dilakukan</h3>
-                                    <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon (14-24 September 2026) selesai dilaksanakan.</p>
+                                    <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon selesai dilaksanakan.</p>
                                 </div>
                             )}
 
@@ -759,6 +796,9 @@
             const [sudahMasuk, aturSudahMasuk] = useState(false);
             const [galeriFoto, aturGaleriFoto] = useState([]);
             
+            const [jadwalSingkat, setJadwalSingkat] = useState([]);
+            const [jadwalLengkap, setJadwalLengkap] = useState([]);
+
             const ambilDataGaleri = async () => {
                 if (urlSupabase.includes("MASUKKAN")) return; 
                 try {
@@ -773,7 +813,20 @@
                 }
             };
 
+            // Effect untuk memproses status real-time saat aplikasi dimuat
             useEffect(() => {
+                const singkatDiproses = JADWAL_SINGKAT_MENTAH.map(tahap => ({
+                    ...tahap,
+                    status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
+                }));
+                setJadwalSingkat(singkatDiproses);
+
+                const lengkapDiproses = JADWAL_LENGKAP_MENTAH.map(tahap => ({
+                    ...tahap,
+                    status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
+                }));
+                setJadwalLengkap(lengkapDiproses);
+
                 ambilDataGaleri();
             }, []);
             
@@ -858,8 +911,8 @@
                     </header>
 
                     <main className="flex-grow">
-                        {tampilan === 'beranda' && <Beranda tautanDpt={tautanDpt} aturTampilan={navigasi} galeriFoto={galeriFoto} />}
-                        {tampilan === 'informasi' && <Informasi tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} />}
+                        {tampilan === 'beranda' && <Beranda tautanDpt={tautanDpt} aturTampilan={navigasi} galeriFoto={galeriFoto} JADWAL_SINGKAT={jadwalSingkat} />}
+                        {tampilan === 'informasi' && <Informasi tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} />}
                     </main>
 
                     {/* Kaki Utama (FOOTER) dengan logopptd */}
