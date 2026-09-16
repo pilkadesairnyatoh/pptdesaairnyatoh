@@ -46,19 +46,14 @@
     <div id="akar"></div>
 
     <script type="text/babel">
-        // ==========================================
-        // KONFIGURASI SUPABASE (PENGGANTI FIREBASE)
-        // ==========================================
         const urlSupabase = "https://eopwimzqhczlsxyfmnjh.supabase.co";
         const kunciAnon = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVvcHdpbXpxaGN6bHN4eWZtbmpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkzMjg5NzYsImV4cCI6MjEwNDkwNDk3Nn0.2zeSt3Y44DpAHamduTqZFzY1rdQl4zrjbirr6O4iCqw";
         
         const { createClient } = window.supabase;
         const klienSupabase = createClient(urlSupabase, kunciAnon);
-        // ==========================================
 
         const { useState, useEffect } = React;
 
-        // Fungsi Helper untuk menghitung status jadwal secara otomatis (real-time)
         const hitungStatusRealTime = (mulaiStr, selesaiStr, isTahunBerikutnya = false) => {
             const hariIni = new Date();
             hariIni.setHours(0,0,0,0);
@@ -96,11 +91,6 @@
             { id: 8, nama: "Pelantikan", mulai: "28 Jan", selesai: "5 Feb 2027", isTahunBerikutnya: true },
         ];
 
-        const JADWAL_SINGKAT = JADWAL_SINGKAT_MENTAH.map(tahap => ({
-            ...tahap,
-            status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
-        }));
-
         const JADWAL_LENGKAP_MENTAH = [
             { id: 1, tahap: "PERSIAPAN", nama: "Rapat koordinasi persiapan dan pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "6 Jul 2026", selesai: "6 Jul 2026" },
             { id: 2, tahap: "PERSIAPAN", nama: "Pembentukan Panitia Pemilihan Tingkat Desa (PPT Desa)", mulai: "31 Jul 2026", selesai: "31 Jul 2026" },
@@ -123,11 +113,6 @@
             { id: 19, tahap: "SENGKETA", nama: "Penyelesaian perselisihan/sengketa pemilihan", mulai: "7 Des 2026", selesai: "18 Des 2026" },
             { id: 20, tahap: "PELANTIKAN", nama: "Pengesahan dan Pelantikan Kepala Desa", mulai: "21 Des 2026", selesai: "5 Feb 2027", isTahunBerikutnya: true }
         ];
-
-        const JADWAL_LENGKAP = JADWAL_LENGKAP_MENTAH.map(tahap => ({
-            ...tahap,
-            status: hitungStatusRealTime(tahap.mulai, tahap.selesai, tahap.isTahunBerikutnya)
-        }));
 
         const JudulBagian = ({ judul, subjudul, diTengah = true }) => (
             <div className={`mb-10 ${diTengah ? 'text-center' : 'text-left'}`}>
@@ -157,7 +142,6 @@
                         
                         <div className="container mx-auto px-6 relative z-10 py-20">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-                                {/* KOLOM KIRI: TEKS UTAMA */}
                                 <div className="max-w-2xl">
                                     <div className="inline-block border border-[#C9A227]/30 rounded-full px-4 py-1.5 mb-6 backdrop-blur-sm bg-black/10">
                                         <span className="text-[#C9A227] text-sm font-medium tracking-widest uppercase">Portal Resmi Panitia Pemilihan Tingkat Desa</span>
@@ -179,7 +163,6 @@
                                     </div>
                                 </div>
 
-                                {/* KOLOM KANAN: GALERI DOKUMENTASI */}
                                 <div className="relative w-full h-[350px] md:h-[450px] bg-white/5 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group flex items-center justify-center">
                                     {galeriFoto && galeriFoto.length > 0 ? (
                                         <>
@@ -426,15 +409,21 @@
                                         <i className="fa-solid fa-location-dot text-[#C9A227] text-2xl"></i> Daftar Tempat Pemungutan Suara (TPS)
                                     </h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {[1, 2, 3, 4].map(nomor => (
-                                            <div key={nomor} className="border border-gray-200 rounded-xl p-5 hover:border-[#C9A227]/50 transition-colors flex gap-4 bg-gray-50">
+                                        {[
+                                            {no: 1, tempat: "HALAMAN GEDUNG PERTEMUAN DESA AIR NYATOH", alamat: "DUSUN I KP. BARU"},
+                                            {no: 2, tempat: "JALAN GANG SD NEGERI 8 SIMPANG TERITIP SAMPING TK SATAP SDN 8", alamat: "DUSUN I KP. BARU"},
+                                            {no: 3, tempat: "HALAMAN TPA AL - FURQAN", alamat: "DUSUN I KP. BARU"},
+                                            {no: 4, tempat: "HALAMAN PARKIRAN MASJID AL-A'RAF", alamat: "DUSUN II KP. LAMA"},
+                                            {no: 5, tempat: "HALAMAN TPA PINANGYANG", alamat: "DUSUN III PINANGYANG"}
+                                        ].map(tps => (
+                                            <div key={tps.no} className="border border-gray-200 rounded-xl p-5 hover:border-[#C9A227]/50 transition-colors flex gap-4 bg-gray-50">
                                                 <div className="w-12 h-12 bg-[#4A0E18] text-[#C9A227] font-bold text-xl rounded-lg flex items-center justify-center shrink-0 shadow-inner">
-                                                    {nomor < 10 ? `0${nomor}` : nomor}
+                                                    {tps.no < 10 ? `0${tps.no}` : tps.no}
                                                 </div>
                                                 <div>
-                                                    <h4 className="font-bold text-gray-800 mb-1">TPS {nomor < 10 ? `0${nomor}` : nomor}</h4>
-                                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold text-gray-800">Lokasi:</span> [NAMA LOKASI TPS {nomor}]</p>
-                                                    <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">Wilayah:</span> [CAKUPAN RT/RW/DUSUN]</p>
+                                                    <h4 className="font-bold text-gray-800 mb-1">TPS {tps.no < 10 ? `0${tps.no}` : tps.no}</h4>
+                                                    <p className="text-sm text-gray-600 mb-1"><span className="font-semibold text-gray-800">Lokasi:</span> {tps.tempat}</p>
+                                                    <p className="text-sm text-gray-500"><span className="font-semibold text-gray-800">Wilayah:</span> {tps.alamat}</p>
                                                 </div>
                                             </div>
                                         ))}
@@ -813,7 +802,6 @@
                 }
             };
 
-            // Effect untuk memproses status real-time saat aplikasi dimuat
             useEffect(() => {
                 const singkatDiproses = JADWAL_SINGKAT_MENTAH.map(tahap => ({
                     ...tahap,
@@ -915,7 +903,6 @@
                         {tampilan === 'informasi' && <Informasi tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} />}
                     </main>
 
-                    {/* Kaki Utama (FOOTER) dengan logopptd */}
                     <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
                         <div className="container mx-auto px-6 relative z-10">
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 mb-12">
