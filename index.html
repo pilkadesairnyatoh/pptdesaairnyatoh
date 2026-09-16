@@ -21,7 +21,7 @@
     <!-- Babel untuk menerjemahkan JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Supabase SDK (Pengganti Firebase) -->
+    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -326,7 +326,7 @@
                 { id: 'jadwal', label: 'Jadwal Lengkap', ikon: "fa-calendar-days" },
                 { id: 'calon', label: 'Calon Kades', ikon: "fa-users" },
                 { id: 'tps', label: 'Info TPS', ikon: "fa-location-dot" },
-                { id: 'hasil', label: 'Hitung Cepat', ikon: "fa-chart-column" },
+                { id: 'hasil', label: 'Hitung Cepat & Grafik', ikon: "fa-chart-column" },
             ];
 
             return (
@@ -433,31 +433,107 @@
 
                             {tabAktif === 'hasil' && (
                                 <div className="animasi-memudar">
-                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-6 flex items-center gap-3 border-b pb-4">
-                                        <i className="fa-solid fa-chart-column text-[#C9A227] text-2xl"></i> Hasil Hitung Cepat
+                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-3">
+                                        <i className="fa-solid fa-chart-column text-[#C9A227] text-2xl"></i> Rekapitulasi & Hitung Cepat Per TPS
                                     </h3>
+                                    <p className="text-gray-500 text-sm mb-6 pb-4 border-b">Perolehan suara berdasarkan input data resmi panitia per TPS</p>
                                     
                                     <div className="mb-8 p-5 bg-blue-50 border border-blue-200 rounded-xl text-sm text-blue-800 flex gap-4">
                                         <i className="fa-solid fa-circle-info shrink-0 mt-0.5 text-xl"></i>
-                                        <p className="leading-relaxed">Data yang ditampilkan di bawah ini adalah hasil simulasi perhitungan cepat. Hasil resmi adalah yang ditetapkan pada rapat pleno rekapitulasi pada 18-20 November 2026.</p>
+                                        <p className="leading-relaxed">Tabel di bawah merumuskan secara otomatis jumlah suara sah, total suara, serta peringkat dan diagram persentase dari setiap calon kepala desa berdasarkan pengisian data admin.</p>
                                     </div>
 
+                                    {/* TABEL REKAPITULASI PER TPS */}
+                                    <div className="overflow-x-auto rounded-xl border border-gray-300 mb-10 shadow-sm">
+                                        <table className="w-full text-center border-collapse text-xs md:text-sm">
+                                            <thead>
+                                                <tr className="bg-[#4A0E18] text-white">
+                                                    <th className="p-3 border border-gray-400 font-bold w-12">NO</th>
+                                                    <th className="p-3 border border-gray-400 font-bold text-left">NAMA CALON KEPALA DESA</th>
+                                                    <th className="p-3 border border-gray-400 font-bold">TPS 1</th>
+                                                    <th className="p-3 border border-gray-400 font-bold">TPS 2</th>
+                                                    <th className="p-3 border border-gray-400 font-bold">TPS 3</th>
+                                                    <th className="p-3 border border-gray-400 font-bold">TPS 4</th>
+                                                    <th className="p-3 border border-gray-400 font-bold">TPS 5</th>
+                                                    <th className="p-3 border border-gray-400 font-bold bg-[#6B1725]">JUMLAH TOTAL</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {dataHitungCepat.map((calon, idx) => {
+                                                    const totalCalon = (calon.tps[1] || 0) + (calon.tps[2] || 0) + (calon.tps[3] || 0) + (calon.tps[4] || 0) + (calon.tps[5] || 0);
+                                                    return (
+                                                        <tr key={calon.id} className="hover:bg-gray-50 transition-colors bg-white">
+                                                            <td className="p-3 border border-gray-300 font-bold">{calon.id}</td>
+                                                            <td className="p-3 border border-gray-300 text-left font-bold text-[#4A0E18]">
+                                                                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{backgroundColor: calon.warna}}></span>
+                                                                {calon.nama}
+                                                            </td>
+                                                            <td className="p-3 border border-gray-300">{calon.tps[1] || 0}</td>
+                                                            <td className="p-3 border border-gray-300">{calon.tps[2] || 0}</td>
+                                                            <td className="p-3 border border-gray-300">{calon.tps[3] || 0}</td>
+                                                            <td className="p-3 border border-gray-300">{calon.tps[4] || 0}</td>
+                                                            <td className="p-3 border border-gray-300">{calon.tps[5] || 0}</td>
+                                                            <td className="p-3 border border-gray-300 font-black text-base text-[#C9A227] bg-yellow-50/50">{totalCalon}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr className="bg-gray-100 font-bold text-gray-800">
+                                                    <td colSpan="2" className="p-3 border border-gray-300 text-right uppercase">Jumlah Suara Sah per TPS</td>
+                                                    {[1,2,3,4,5].map(tpsNum => {
+                                                        const totalTps = dataHitungCepat.reduce((sum, c) => sum + (c.tps[tpsNum] || 0), 0);
+                                                        return <td key={tpsNum} className="p-3 border border-gray-300 text-blue-900 font-bold">{totalTps}</td>;
+                                                    })}
+                                                    <td className="p-3 border border-gray-300 text-green-700 text-base font-black">
+                                                        {dataHitungCepat.reduce((acc, c) => acc + Object.values(c.tps).reduce((a,b)=>a+b, 0), 0)}
+                                                    </td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+
+                                    {/* DIAGRAM & PERINGKAT OTOMATIS */}
+                                    <h4 className="text-xl font-bold text-[#4A0E18] mb-4 flex items-center gap-2">
+                                        <i className="fa-solid fa-ranking-star text-[#C9A227]"></i> Diagram Peringkat & Persentase Otomatis
+                                    </h4>
+                                    
                                     <div className="space-y-6">
                                         {(() => {
-                                            const totalSuara = dataHitungCepat.reduce((akumulasi, saatIni) => akumulasi + saatIni.suara, 0);
+                                            const totalSemuaSuara = dataHitungCepat.reduce((acc, curr) => {
+                                                const subTotal = Object.values(curr.tps).reduce((a,b)=>a+b, 0);
+                                                return acc + subTotal;
+                                            }, 0);
                                             
-                                            return dataHitungCepat.map((calon) => {
-                                                const persentase = totalSuara === 0 ? 0 : ((calon.suara / totalSuara) * 100).toFixed(1);
+                                            // Urutkan peringkat dari suara terbanyak ke terkecil secara otomatis
+                                            const dataTerurut = [...dataHitungCepat].sort((a, b) => {
+                                                const totalA = Object.values(a.tps).reduce((x,y)=>x+y, 0);
+                                                const totalB = Object.values(b.tps).reduce((x,y)=>x+y, 0);
+                                                return totalB - totalA;
+                                            });
+
+                                            return dataTerurut.map((calon, peringkat) => {
+                                                const suaraCalon = Object.values(calon.tps).reduce((a,b)=>a+b, 0);
+                                                const persentase = totalSemuaSuara === 0 ? 0 : ((suaraCalon / totalSemuaSuara) * 100).toFixed(1);
+                                                
                                                 return (
-                                                    <div key={calon.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm">
-                                                        <div className="flex justify-between items-center mb-3">
+                                                    <div key={calon.id} className="bg-gray-50 p-5 rounded-xl border border-gray-200 shadow-sm relative overflow-hidden">
+                                                        {peringkat === 0 && suaraCalon > 0 && (
+                                                            <div className="absolute top-0 right-0 bg-[#C9A227] text-[#4A0E18] text-xs font-bold px-4 py-1 rounded-bl-xl shadow-sm uppercase tracking-wider">
+                                                                <i className="fa-solid fa-crown mr-1"></i> Pimpinan Perolehan Sementara
+                                                            </div>
+                                                        )}
+                                                        <div className="flex justify-between items-center mb-3 pr-24 sm:pr-0">
                                                             <span className="font-bold text-[#4A0E18] text-lg flex items-center gap-3">
-                                                                <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm" style={{backgroundColor: calon.warna}}>{calon.id}</span>
-                                                                {calon.nama}
+                                                                <span className="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-sm" style={{backgroundColor: calon.warna}}>{calon.id}</span>
+                                                                <div>
+                                                                    <span>{calon.nama}</span>
+                                                                    <span className="block text-xs font-normal text-gray-500">Peringkat #{peringkat + 1}</span>
+                                                                </div>
                                                             </span>
                                                             <div className="text-right">
                                                                 <span className="font-black text-2xl text-[#C9A227]">{persentase}%</span>
-                                                                <span className="text-sm text-gray-500 ml-2 block sm:inline">({calon.suara.toLocaleString('id-ID')} suara)</span>
+                                                                <span className="text-sm text-gray-500 ml-2 block sm:inline">({suaraCalon.toLocaleString('id-ID')} suara)</span>
                                                             </div>
                                                         </div>
                                                         <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
@@ -515,14 +591,14 @@
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Nama Pengguna</label>
                                 <div className="relative">
-                                    <input type="text" value={namaPengguna} onChange={(e) => aturNamaPengguna(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="masukan id" />
+                                    <input type="text" value={namaPengguna} onChange={(e) => aturNamaPengguna(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin" />
                                     <i className="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i>
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Kata Sandi</label>
                                 <div className="relative">
-                                    <input type="password" value={kataSandi} onChange={(e) => aturKataSandi(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="masukan sandi" />
+                                    <input type="password" value={kataSandi} onChange={(e) => aturKataSandi(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin123" />
                                     <i className="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i>
                                 </div>
                             </div>
@@ -551,10 +627,20 @@
                 setTimeout(() => aturTersimpan(false), 3000);
             };
 
-            const perbaruiHitungCepat = (indeks, nilai) => {
+            const perbaruiSuaraTps = (idCalon, nomorTps, nilai) => {
                 const angka = parseInt(nilai) || 0;
-                const dataBaru = [...dataHitungCepat];
-                dataBaru[indeks].suara = angka;
+                const dataBaru = dataHitungCepat.map(calon => {
+                    if (calon.id === idCalon) {
+                        return {
+                            ...calon,
+                            tps: {
+                                ...calon.tps,
+                                [nomorTps]: angka
+                            }
+                        };
+                    }
+                    return calon;
+                });
                 aturDataHitungCepat(dataBaru);
             };
 
@@ -632,7 +718,7 @@
                             {[
                                 { id: 'dasbor', label: 'Dasbor Utama', ikon: "fa-chart-pie" },
                                 { id: 'galeri', label: 'Galeri Dokumentasi', ikon: "fa-images" },
-                                { id: 'hitungcepat', label: 'Hitung Cepat (5 Calon)', ikon: "fa-chart-column" },
+                                { id: 'hitungcepat', label: 'Input Hitung Cepat TPS', ikon: "fa-chart-column" },
                                 { id: 'pengaturan', label: 'Pengaturan Tautan DPT', ikon: "fa-gear" },
                             ].map(menu => (
                                 <button 
@@ -652,15 +738,15 @@
                     </aside>
 
                     <main className="flex-1 p-8 overflow-y-auto">
-                        <div className="max-w-5xl mx-auto">
+                        <div className="max-w-6xl mx-auto">
                             <header className="mb-8 flex justify-between items-end bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
                                 <div>
                                     <h1 className="text-2xl font-bold text-gray-800 capitalize mb-1">{menuAktif.replace('-', ' ')}</h1>
                                     <p className="text-gray-500 text-sm">Sistem Manajemen Portal Informasi Pilkades 2026</p>
                                 </div>
-                                <div className="flex items-center gap-4 mb-6">
+                                <div className="flex items-center gap-4">
                                     <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center overflow-hidden">
-                                        <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
+                                        <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
                                     </div>
                                     <div>
                                         <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
@@ -673,7 +759,7 @@
                                     {[
                                         { label: 'Total Calon', val: '5', warna: 'text-blue-600', latar: 'bg-blue-50', batas: 'border-blue-100' },
                                         { label: 'Foto Galeri', val: galeriFoto.length, warna: 'text-[#4A0E18]', latar: 'bg-red-50', batas: 'border-red-100' },
-                                        { label: 'Pengaduan', val: '0', warna: 'text-[#C9A227]', latar: 'bg-yellow-50', batas: 'border-yellow-100' },
+                                        { label: 'Wilayah TPS', val: '5 TPS', warna: 'text-[#C9A227]', latar: 'bg-yellow-50', batas: 'border-yellow-100' },
                                         { label: 'Pengunjung', val: '1.2K', warna: 'text-green-600', latar: 'bg-green-50', batas: 'border-green-100' },
                                     ].map((statistik, i) => (
                                         <div key={i} className={`p-6 rounded-2xl shadow-sm border ${statistik.latar} ${statistik.batas}`}>
@@ -721,28 +807,51 @@
 
                             {menuAktif === 'hitungcepat' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat - 5 Calon</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Perbarui perolehan suara masing-masing calon.</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat Per TPS (TPS 1 s.d TPS 5)</h3>
+                                    <p className="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Masukkan perolehan suara masing-masing calon pada setiap TPS. Total dan diagram peringkat akan dihitung secara otomatis.</p>
                                     
-                                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                        {dataHitungCepat.map((calon, indeks) => (
-                                            <div key={calon.id} className="bg-gray-50 rounded-xl p-5 border border-gray-200 flex flex-col justify-between">
-                                                <div className="flex items-center gap-3 mb-4">
-                                                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: calon.warna }}>
-                                                        {calon.id}
-                                                    </div>
-                                                    <h4 className="font-bold text-gray-800">{calon.nama}</h4>
-                                                </div>
-                                                <div>
-                                                    <label className="block text-xs font-bold text-gray-500 mb-2 uppercase tracking-wider">Perolehan Suara</label>
-                                                    <input 
-                                                        type="number" min="0" value={calon.suara}
-                                                        onChange={(e) => perbaruiHitungCepat(indeks, e.target.value)}
-                                                        className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-[#C9A227] outline-none font-bold text-xl bg-white"
-                                                    />
-                                                </div>
-                                            </div>
-                                        ))}
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left border-collapse text-sm">
+                                            <thead>
+                                                <tr className="bg-[#4A0E18] text-white">
+                                                    <th className="p-3 border border-gray-400 w-16 text-center">NO</th>
+                                                    <th className="p-3 border border-gray-400">NAMA CALON</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-24">TPS 1</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-24">TPS 2</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-24">TPS 3</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-24">TPS 4</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-24">TPS 5</th>
+                                                    <th className="p-3 border border-gray-400 text-center w-32 bg-[#6B1725]">TOTAL</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {dataHitungCepat.map((calon) => {
+                                                    const subTotal = (calon.tps[1] || 0) + (calon.tps[2] || 0) + (calon.tps[3] || 0) + (calon.tps[4] || 0) + (calon.tps[5] || 0);
+                                                    return (
+                                                        <tr key={calon.id} className="hover:bg-gray-50">
+                                                            <td className="p-3 border border-gray-300 text-center font-bold">{calon.id}</td>
+                                                            <td className="p-3 border border-gray-300 font-bold text-[#4A0E18]">
+                                                                <span className="inline-block w-3 h-3 rounded-full mr-2" style={{backgroundColor: calon.warna}}></span>
+                                                                {calon.nama}
+                                                            </td>
+                                                            {[1, 2, 3, 4, 5].map(tpsNum => (
+                                                                <td key={tpsNum} className="p-2 border border-gray-300 text-center">
+                                                                    <input 
+                                                                        type="number" min="0" 
+                                                                        value={calon.tps[tpsNum] !== undefined ? calon.tps[tpsNum] : 0}
+                                                                        onChange={(e) => perbaruiSuaraTps(calon.id, tpsNum, e.target.value)}
+                                                                        className="w-full text-center px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#C9A227] outline-none font-bold bg-white"
+                                                                    />
+                                                                </td>
+                                                            ))}
+                                                            <td className="p-3 border border-gray-300 text-center font-black text-[#C9A227] bg-yellow-50/50 text-base">
+                                                                {subTotal}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             )}
@@ -779,6 +888,7 @@
             const [tampilan, aturTampilan] = useState('beranda');
             const [sudahDigulir, aturSudahDigulir] = useState(false);
             const [menuPonselTerbuka, aturMenuPonselTerbuka] = useState(false);
+            const [tabInformasiAwal, aturTabInformasiAwal] = useState('jadwal');
             
             const [tautanDpt, aturTautanDpt] = useState('https://pptairnyatoh-spec.github.io/cekdptpilkadesairnyatoh');
             const [modeAdmin, aturModeAdmin] = useState(false);
@@ -818,12 +928,13 @@
                 ambilDataGaleri();
             }, []);
             
+            // State Hitung Cepat dengan rincian TPS 1 s.d. TPS 5
             const [dataHitungCepat, aturDataHitungCepat] = useState([
-                { id: 1, nama: "Calon No. Urut 1", suara: 0, warna: "#4A0E18" },
-                { id: 2, nama: "Calon No. Urut 2", suara: 0, warna: "#6B1725" },
-                { id: 3, nama: "Calon No. Urut 3", suara: 0, warna: "#C9A227" },
-                { id: 4, nama: "Calon No. Urut 4", suara: 0, warna: "#8C7B5D" },
-                { id: 5, nama: "Calon No. Urut 5", suara: 0, warna: "#241C1D" },
+                { id: 1, nama: "Calon No. Urut 1", warna: "#4A0E18", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 2, nama: "Calon No. Urut 2", warna: "#6B1725", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 3, nama: "Calon No. Urut 3", warna: "#C9A227", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 4, nama: "Calon No. Urut 4", warna: "#8C7B5D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 5, nama: "Calon No. Urut 5", warna: "#241C1D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
             ]);
 
             useEffect(() => {
@@ -832,7 +943,8 @@
                 return () => window.removeEventListener('scroll', tanganiGulir);
             }, []);
 
-            const navigasi = (tampilanBaru) => {
+            const navigasi = (tampilanBaru, tabKhusus = 'jadwal') => {
+                aturTabInformasiAwal(tabKhusus);
                 aturTampilan(tampilanBaru);
                 aturMenuPonselTerbuka(false);
                 window.scrollTo(0, 0);
@@ -859,7 +971,7 @@
                         <div className="container mx-auto px-4 md:px-6 flex justify-between items-center">
                             <div className="flex items-center gap-4 cursor-pointer group" onClick={() => navigasi('beranda')}>
                                 <div className="w-10 h-10 md:w-12 md:h-12 bg-[#C9A227] rounded-full flex items-center justify-center border-2 border-white/20 shrink-0 shadow-inner group-hover:scale-105 transition-transform overflow-hidden">
-                                    <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
+                                    <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
                                 </div>
                                 <div className="flex flex-col text-white">
                                     <span className="text-[10px] md:text-xs font-bold tracking-widest text-[#C9A227]">PANITIA PEMILIHAN</span>
@@ -900,7 +1012,7 @@
 
                     <main className="flex-grow">
                         {tampilan === 'beranda' && <Beranda tautanDpt={tautanDpt} aturTampilan={navigasi} galeriFoto={galeriFoto} JADWAL_SINGKAT={jadwalSingkat} />}
-                        {tampilan === 'informasi' && <Informasi tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} />}
+                        {tampilan === 'informasi' && <Informasi tabAwal={tabInformasiAwal} tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} />}
                     </main>
 
                     <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
@@ -909,7 +1021,7 @@
                                 <div>
                                     <div className="flex items-center gap-4 mb-6">
                                         <div className="w-12 h-12 bg-[#C9A227] rounded-full flex items-center justify-center overflow-hidden border-2 border-white/20 shrink-0 shadow-inner">
-                                            <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" />
+                                            <img src="logopptd (1).png" alt="Logo Air Nyatoh" className="w-full h-full object-cover" onError={(e)=>{e.target.style.display='none'}} />
                                         </div>
                                         <div>
                                             <h3 className="font-serif font-bold text-lg leading-tight">PANITIA PEMILIHAN<br/>DESA AIR NYATOH</h3>
