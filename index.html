@@ -619,6 +619,7 @@
             const [menuAktif, aturMenuAktif] = useState('dasbor');
             const [tautanSementara, aturTautanSementara] = useState(tautanDpt);
             const [tersimpan, aturTersimpan] = useState(false);
+            const [statusSimpan, aturStatusSimpan] = useState('');
 
             const simpanTautan = (e) => {
                 e.preventDefault();
@@ -627,7 +628,7 @@
                 setTimeout(() => aturTersimpan(false), 3000);
             };
 
-            const perbaruiSuaraTps = (idCalon, nomorTps, nilai) => {
+            const perbaruiSuaraTps = async (idCalon, nomorTps, nilai) => {
                 const angka = parseInt(nilai) || 0;
                 const dataBaru = dataHitungCepat.map(calon => {
                     if (calon.id === idCalon) {
@@ -641,7 +642,31 @@
                     }
                     return calon;
                 });
+                
                 aturDataHitungCepat(dataBaru);
+                
+                // Simpan langsung ke Supabase dengan debounce/upsert per input agar aman
+                try {
+                    aturStatusSimpan('Menyimpan...');
+                    const calonTarget = dataBaru.find(c => c.id === idCalon);
+                    const { error } = await klienSupabase
+                        .from('suara_tps')
+                        .upsert({
+                            id_calon: calonTarget.id,
+                            tps_1: calonTarget.tps[1],
+                            tps_2: calonTarget.tps[2],
+                            tps_3: calonTarget.tps[3],
+                            tps_4: calonTarget.tps[4],
+                            tps_5: calonTarget.tps[5]
+                        }, { onConflict: 'id_calon' });
+
+                    if (error) throw error;
+                    aturStatusSimpan('Tersimpan di Cloud');
+                    setTimeout(() => aturStatusSimpan(''), 2000);
+                } catch (err) {
+                    console.error("Gagal sinkronisasi ke database:", err);
+                    aturStatusSimpan('Gagal Simpan!');
+                }
             };
 
             const prosesUnggahFoto = async (e) => {
@@ -807,8 +832,11 @@
 
                             {menuAktif === 'hitungcepat' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Input Hitung Cepat Per TPS (TPS 1 s.d TPS 5)</h3>
-                                    <p className="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Masukkan perolehan suara masing-masing calon pada setiap TPS. Total dan diagram peringkat akan dihitung secara otomatis.</p>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <h3 className="text-lg font-bold text-gray-800">Input Hitung Cepat Per TPS (TPS 1 s.d TPS 5)</h3>
+                                        {statusSimpan && <span className="text-xs font-bold text-[#C9A227] bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200 animate-pulse">{statusSimpan}</span>}
+                                    </div>
+                                    <p className="text-sm text-gray-500 mb-6 pb-6 border-b border-gray-100">Masukkan perolehan suara masing-masing calon pada setiap TPS. Data otomatis tersimpan ke cloud Supabase.</p>
                                     
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-left border-collapse text-sm">
@@ -922,7 +950,6 @@
             ]);
 
             const ambilDataSuara = async () => {
-                if (urlSupabase.includes("MASUKKAN")) return;
                 try {
                     const { data, error } = await klienSupabase
                         .from('suara_tps')
@@ -951,25 +978,8 @@
                 }
             };
 
-            const simpanDataSuara = async (dataBaru) => {
+            const simpanDataSuara = (dataBaru) => {
                 aturDataHitungCepat(dataBaru);
-                if (urlSupabase.includes("MASUKKAN")) return;
-                try {
-                    for (let calon of dataBaru) {
-                        await klienSupabase
-                            .from('suara_tps')
-                            .upsert({
-                                id_calon: calon.id,
-                                tps_1: calon.tps[1],
-                                tps_2: calon.tps[2],
-                                tps_3: calon.tps[3],
-                                tps_4: calon.tps[4],
-                                tps_5: calon.tps[5]
-                            }, { onConflict: 'id_calon' });
-                    }
-                } catch (err) {
-                    console.error("Gagal menyimpan suara ke database:", err);
-                }
             };
 
             useEffect(() => {
