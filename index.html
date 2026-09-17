@@ -591,14 +591,14 @@
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Nama Pengguna</label>
                                 <div className="relative">
-                                    <input type="text" value={namaPengguna} onChange={(e) => aturNamaPengguna(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="id" />
+                                    <input type="text" value={namaPengguna} onChange={(e) => aturNamaPengguna(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin" />
                                     <i className="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i>
                                 </div>
                             </div>
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2">Kata Sandi</label>
                                 <div className="relative">
-                                    <input type="password" value={kataSandi} onChange={(e) => aturKataSandi(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="sandi" />
+                                    <input type="password" value={kataSandi} onChange={(e) => aturKataSandi(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="admin123" />
                                     <i className="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i>
                                 </div>
                             </div>
@@ -912,6 +912,66 @@
                 }
             };
 
+            // State Hitung Cepat dengan rincian TPS 1 s.d. TPS 5
+            const [dataHitungCepat, aturDataHitungCepat] = useState([
+                { id: 1, nama: "Calon No. Urut 1", warna: "#4A0E18", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 2, nama: "Calon No. Urut 2", warna: "#6B1725", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 3, nama: "Calon No. Urut 3", warna: "#C9A227", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 4, nama: "Calon No. Urut 4", warna: "#8C7B5D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+                { id: 5, nama: "Calon No. Urut 5", warna: "#241C1D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
+            ]);
+
+            const ambilDataSuara = async () => {
+                if (urlSupabase.includes("MASUKKAN")) return;
+                try {
+                    const { data, error } = await klienSupabase
+                        .from('suara_tps')
+                        .select('*');
+                    if (error) throw error;
+                    if (data && data.length > 0) {
+                        const dataBaru = [1,2,3,4,5].map(idCalon => {
+                            const baris = data.find(d => d.id_calon === idCalon) || {};
+                            return {
+                                id: idCalon,
+                                nama: `Calon No. Urut ${idCalon}`,
+                                warna: idCalon === 1 ? "#4A0E18" : idCalon === 2 ? "#6B1725" : idCalon === 3 ? "#C9A227" : idCalon === 4 ? "#8C7B5D" : "#241C1D",
+                                tps: {
+                                    1: baris.tps_1 || 0,
+                                    2: baris.tps_2 || 0,
+                                    3: baris.tps_3 || 0,
+                                    4: baris.tps_4 || 0,
+                                    5: baris.tps_5 || 0,
+                                }
+                            };
+                        });
+                        aturDataHitungCepat(dataBaru);
+                    }
+                } catch (err) {
+                    console.error("Gagal mengambil data suara:", err);
+                }
+            };
+
+            const simpanDataSuara = async (dataBaru) => {
+                aturDataHitungCepat(dataBaru);
+                if (urlSupabase.includes("MASUKKAN")) return;
+                try {
+                    for (let calon of dataBaru) {
+                        await klienSupabase
+                            .from('suara_tps')
+                            .upsert({
+                                id_calon: calon.id,
+                                tps_1: calon.tps[1],
+                                tps_2: calon.tps[2],
+                                tps_3: calon.tps[3],
+                                tps_4: calon.tps[4],
+                                tps_5: calon.tps[5]
+                            }, { onConflict: 'id_calon' });
+                    }
+                } catch (err) {
+                    console.error("Gagal menyimpan suara ke database:", err);
+                }
+            };
+
             useEffect(() => {
                 const singkatDiproses = JADWAL_SINGKAT_MENTAH.map(tahap => ({
                     ...tahap,
@@ -926,16 +986,8 @@
                 setJadwalLengkap(lengkapDiproses);
 
                 ambilDataGaleri();
+                ambilDataSuara();
             }, []);
-            
-            // State Hitung Cepat dengan rincian TPS 1 s.d. TPS 5
-            const [dataHitungCepat, aturDataHitungCepat] = useState([
-                { id: 1, nama: "Calon No. Urut 1", warna: "#4A0E18", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
-                { id: 2, nama: "Calon No. Urut 2", warna: "#6B1725", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
-                { id: 3, nama: "Calon No. Urut 3", warna: "#C9A227", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
-                { id: 4, nama: "Calon No. Urut 4", warna: "#8C7B5D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
-                { id: 5, nama: "Calon No. Urut 5", warna: "#241C1D", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
-            ]);
 
             useEffect(() => {
                 const tanganiGulir = () => aturSudahDigulir(window.scrollY > 20);
@@ -962,7 +1014,7 @@
                         <MasukAdmin saatMasuk={() => aturSudahMasuk(true)} saatBatal={() => aturModeAdmin(false)} /> :
                         <DasborAdmin 
                             aturModeAdmin={aturModeAdmin} tautanDpt={tautanDpt} aturTautanDpt={aturTautanDpt} 
-                            dataHitungCepat={dataHitungCepat} aturDataHitungCepat={aturDataHitungCepat} 
+                            dataHitungCepat={dataHitungCepat} aturDataHitungCepat={simpanDataSuara} 
                             galeriFoto={galeriFoto} muatUlangGaleri={ambilDataGaleri}
                         />
                     )}
