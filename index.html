@@ -319,7 +319,7 @@
             );
         };
 
-        const Informasi = ({ tabAwal, tautanDpt, dataHitungCepat, JADWAL_LENGKAP }) => {
+        const Informasi = ({ tabAwal, tautanDpt, dataHitungCepat, JADWAL_LENGKAP, daftarCalon }) => {
             const [tabAktif, aturTabAktif] = useState(tabAwal || 'jadwal');
             
             const daftarTab = [
@@ -394,12 +394,58 @@
                             )}
 
                             {tabAktif === 'calon' && (
-                                <div className="animasi-memudar text-center py-16">
-                                    <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-100">
-                                        <i className="fa-solid fa-users text-4xl text-gray-300"></i>
-                                    </div>
-                                    <h3 className="text-xl font-bold text-gray-600 mb-2">Penetapan Calon Belum Dilakukan</h3>
-                                    <p className="text-gray-500 max-w-md mx-auto text-sm">Informasi profil, visi, dan misi Calon Kepala Desa akan ditampilkan di sini setelah tahapan Penetapan Calon selesai dilaksanakan.</p>
+                                <div className="animasi-memudar">
+                                    <h3 className="text-xl font-bold text-[#4A0E18] mb-2 flex items-center gap-2">
+                                        <i className="fa-solid fa-users text-[#C9A227]"></i> Daftar Calon Kepala Desa Air Nyatoh 2026
+                                    </h3>
+                                    <p className="text-gray-500 text-sm mb-8 pb-4 border-b">Profil resmi, nomor urut, visi, dan misi kandidat Kepala Desa</p>
+
+                                    {daftarCalon && daftarCalon.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                            {daftarCalon.map((calon) => (
+                                                <div key={calon.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow flex flex-col">
+                                                    <div className="relative h-64 bg-[#4A0E18]/5 flex items-center justify-center overflow-hidden">
+                                                        {calon.foto ? (
+                                                            <img src={calon.foto} alt={calon.nama} className="w-full h-full object-cover" />
+                                                        ) : (
+                                                            <div className="text-center p-6">
+                                                                <i className="fa-solid fa-user text-6xl text-gray-300 mb-2 block"></i>
+                                                                <p className="text-xs text-gray-400">Foto Kandidat</p>
+                                                            </div>
+                                                        )}
+                                                        <div className="absolute top-4 left-4 bg-[#4A0E18] text-[#C9A227] font-serif font-black px-4 py-1.5 rounded-xl shadow-lg border border-[#C9A227]/30 text-sm">
+                                                            NO. URUT {calon.nomorUrut}
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-6 flex-1 flex flex-col justify-between">
+                                                        <div>
+                                                            <h4 className="font-serif font-bold text-xl text-[#4A0E18] mb-3">{calon.nama}</h4>
+                                                            
+                                                            <div className="mb-4">
+                                                                <h5 className="text-xs font-bold text-[#C9A227] uppercase tracking-wider mb-1">Visi</h5>
+                                                                <p className="text-sm text-gray-700 italic bg-gray-50 p-3 rounded-xl border border-gray-100">"{calon.visi || 'Belum diisi'}"</p>
+                                                            </div>
+
+                                                            <div>
+                                                                <h5 className="text-xs font-bold text-[#C9A227] uppercase tracking-wider mb-1">Misi</h5>
+                                                                <div className="text-sm text-gray-700 bg-gray-50 p-3 rounded-xl border border-gray-100 whitespace-pre-line max-h-40 overflow-y-auto sembunyikan-gulir">
+                                                                    {calon.misi || 'Belum diisi'}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="text-center py-16">
+                                            <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-gray-100">
+                                                <i className="fa-solid fa-users text-4xl text-gray-300"></i>
+                                            </div>
+                                            <h3 className="text-xl font-bold text-gray-600 mb-2">Belum Ada Kandidat Yang Ditambahkan</h3>
+                                            <p className="text-gray-500 max-w-md mx-auto text-sm">Silakan tambahkan data calon melalui Panel Admin pada menu Kelola Calon Kades.</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -583,49 +629,49 @@
 
                         {pesanEror && (
                             <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 flex items-center gap-2 border border-red-200">
-                                <i className="fa-solid fa-circle-exclamation"></i> {pesanEror}
-                            </div>
-                        )}
-
-                        <form onSubmit={prosesMasuk} className="space-y-5">
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Nama Pengguna</label>
-                                <div className="relative">
-                                    <input type="text" value={namaPengguna} onChange={(e) => aturNamaPengguna(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="id" />
-                                    <i className="fa-solid fa-user absolute left-4 top-4 text-gray-400"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-bold text-gray-700 mb-2">Kata Sandi</label>
-                                <div className="relative">
-                                    <input type="password" value={kataSandi} onChange={(e) => aturKataSandi(e.target.value)} required className="w-full pl-11 pr-4 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-[#C9A227] outline-none bg-gray-50" placeholder="sandi" />
-                                    <i className="fa-solid fa-lock absolute left-4 top-4 text-gray-400"></i>
-                                </div>
-                            </div>
-                            <button type="submit" className="w-full bg-[#4A0E18] text-white font-bold py-3.5 rounded-xl hover:bg-[#6B1725] transition-colors shadow-lg mt-4">
-                                Masuk ke Sistem
-                            </button>
-                        </form>
-
-                        <button onClick={saatBatal} className="w-full mt-6 text-sm text-gray-500 hover:text-[#4A0E18] transition-colors">
-                            &larr; Kembali ke Situs Web
-                        </button>
-                    </div>
-                </div>
-            );
-        };
-
-        const DasborAdmin = ({ aturModeAdmin, tautanDpt, aturTautanDpt, dataHitungCepat, aturDataHitungCepat, galeriFoto, muatUlangGaleri }) => {
+        const DasborAdmin = ({ aturModeAdmin, tautanDpt, aturTautanDpt, dataHitungCepat, aturDataHitungCepat, galeriFoto, muatUlangGaleri, daftarCalon, aturDaftarCalon }) => {
             const [menuAktif, aturMenuAktif] = useState('dasbor');
             const [tautanSementara, aturTautanSementara] = useState(tautanDpt);
             const [tersimpan, aturTersimpan] = useState(false);
             const [statusSimpan, aturStatusSimpan] = useState('');
+
+            // Form tambah calon
+            const [namaInput, aturNamaInput] = useState('');
+            const [nomorUrutInput, aturNomorUrutInput] = useState('1');
+            const [visiInput, aturVisiInput] = useState('');
+            const [misiInput, aturMisiInput] = useState('');
+            const [fotoUrlInput, aturFotoUrlInput] = useState('');
 
             const simpanTautan = (e) => {
                 e.preventDefault();
                 aturTautanDpt(tautanSementara);
                 aturTersimpan(true);
                 setTimeout(() => aturTersimpan(false), 3000);
+            };
+
+            const tambahCalonBaru = (e) => {
+                e.preventDefault();
+                const calonBaru = {
+                    id: Date.now(),
+                    nama: namaInput,
+                    nomorUrut: parseInt(nomorUrutInput),
+                    visi: visiInput,
+                    misi: misiInput,
+                    foto: fotoUrlInput || ""
+                };
+                aturDaftarCalon([...daftarCalon, calonBaru]);
+                aturNamaInput('');
+                aturNomorUrutInput('1');
+                aturVisiInput('');
+                aturMisiInput('');
+                aturFotoUrlInput('');
+                alert("Calon Kepala Desa berhasil ditambahkan!");
+            };
+
+            const hapusCalon = (id) => {
+                if(window.confirm("Yakin ingin menghapus data calon ini?")) {
+                    aturDaftarCalon(daftarCalon.filter(c => c.id !== id));
+                }
             };
 
             const perbaruiSuaraTps = async (idCalon, nomorTps, nilai) => {
@@ -742,6 +788,7 @@
                         <nav className="flex-1 py-6 space-y-2 px-4">
                             {[
                                 { id: 'dasbor', label: 'Dasbor Utama', ikon: "fa-chart-pie" },
+                                { id: 'calonadmin', label: 'Kelola Calon Kades', ikon: "fa-users" },
                                 { id: 'galeri', label: 'Galeri Dokumentasi', ikon: "fa-images" },
                                 { id: 'hitungcepat', label: 'Input Hitung Cepat TPS', ikon: "fa-chart-column" },
                                 { id: 'pengaturan', label: 'Pengaturan Tautan DPT', ikon: "fa-gear" },
@@ -782,7 +829,7 @@
                             {menuAktif === 'dasbor' && (
                                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                     {[
-                                        { label: 'Total Calon', val: '5', warna: 'text-blue-600', latar: 'bg-blue-50', batas: 'border-blue-100' },
+                                        { label: 'Total Calon', val: daftarCalon.length, warna: 'text-blue-600', latar: 'bg-blue-50', batas: 'border-blue-100' },
                                         { label: 'Foto Galeri', val: galeriFoto.length, warna: 'text-[#4A0E18]', latar: 'bg-red-50', batas: 'border-red-100' },
                                         { label: 'Wilayah TPS', val: '5 TPS', warna: 'text-[#C9A227]', latar: 'bg-yellow-50', batas: 'border-yellow-100' },
                                         { label: 'Pengunjung', val: '1.2K', warna: 'text-green-600', latar: 'bg-green-50', batas: 'border-green-100' },
@@ -792,6 +839,86 @@
                                             <p className={`text-4xl font-black ${statistik.warna}`}>{statistik.val}</p>
                                         </div>
                                     ))}
+                                </div>
+                            )}
+
+                            {menuAktif === 'calonadmin' && (
+                                <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-150 animasi-memudar">
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Profil, Visi, dan Misi Calon Kepala Desa</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Tambahkan informasi kandidat agar tampil secara publik di menu "Calon Kades".</p>
+                                    
+                                    <form onSubmit={tambahCalonBaru} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-10 space-y-4">
+                                        <h4 className="font-bold text-[#4A0E18] mb-2 flex items-center gap-2"><i className="fa-solid fa-user-plus"></i> Tambah Calon Baru</h4>
+                                        
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-700 mb-1">Nama Lengkap & Gelar</label>
+                                                <input 
+                                                    type="text" value={namaInput} onChange={(e)=>aturNamaInput(e.target.value)} required 
+                                                    className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="Contoh: Bpk. Ahmad, S.Pd" 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-bold text-gray-700 mb-1">Nomor Urut</label>
+                                                <input 
+                                                    type="number" min="1" max="10" value={nomorUrutInput} onChange={(e)=>aturNomorUrutInput(e.target.value)} required 
+                                                    className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" 
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1">URL Foto Calon (Opsional)</label>
+                                            <input 
+                                                type="url" value={fotoUrlInput} onChange={(e)=>aturFotoUrlInput(e.target.value)} 
+                                                className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="https://example.com/foto.jpg" 
+                                            />
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1">Visi</label>
+                                            <textarea 
+                                                rows="2" value={visiInput} onChange={(e)=>aturVisiInput(e.target.value)} required
+                                                className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="Tuliskan visi calon..."
+                                            ></textarea>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1">Misi</label>
+                                            <textarea 
+                                                rows="4" value={misiInput} onChange={(e)=>aturMisiInput(e.target.value)} required
+                                                className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="1. Misi pertama...&#10;2. Misi kedua..."
+                                            ></textarea>
+                                        </div>
+
+                                        <button type="submit" className="bg-[#4A0E18] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#6B1725] transition-colors shadow-md">
+                                            Simpan & Tambah Calon
+                                        </button>
+                                    </form>
+
+                                    <h4 className="font-bold text-gray-800 mb-4">Daftar Calon Tersimpan ({daftarCalon.length})</h4>
+                                    {daftarCalon.length > 0 ? (
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {daftarCalon.map(c => (
+                                                <div key={c.id} className="border border-gray-200 rounded-xl p-4 flex justify-between items-center bg-white shadow-sm">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden shrink-0 flex items-center justify-center font-bold text-gray-400">
+                                                            {c.foto ? <img src={c.foto} alt="" className="w-full h-full object-cover" /> : c.nomorUrut}
+                                                        </div>
+                                                        <div>
+                                                            <span className="text-xs font-bold text-[#C9A227] uppercase">No. Urut {c.nomorUrut}</span>
+                                                            <h5 className="font-bold text-gray-800">{c.nama}</h5>
+                                                        </div>
+                                                    </div>
+                                                    <button onClick={() => hapusCalon(c.id)} className="bg-red-50 text-red-600 hover:bg-red-600 hover:text-white p-2 rounded-lg transition-colors text-xs font-bold">
+                                                        <i className="fa-solid fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-gray-500 text-sm">Belum ada data calon dalam sistem.</p>
+                                    )}
                                 </div>
                             )}
 
@@ -923,6 +1050,33 @@
             const [sudahMasuk, aturSudahMasuk] = useState(false);
             const [galeriFoto, aturGaleriFoto] = useState([]);
             
+            const [daftarCalon, aturDaftarCalon] = useState([
+                { 
+                    id: 1, 
+                    nomorUrut: 1, 
+                    nama: "Bpk. Ahmad Suandi, S.Pd", 
+                    visi: "Mewujudkan Desa Air Nyatoh yang Mandiri, Sejahtera, dan Berbudaya", 
+                    misi: "1. Meningkatkan pelayanan publik yang transparan dan akuntabel.\n2. Mengembangkan potensi ekonomi kerakyatan berbasis digital.\n3. Memperkuat kerukunan warga serta pelestarian adat istiadat desa.", 
+                    foto: "" 
+                },
+                { 
+                    id: 2, 
+                    nomorUrut: 2, 
+                    nama: "Ibu Hj. Siti Aminah, S.E.", 
+                    visi: "Desa Air Nyatoh Bersih, Unggul, dan Berkeadilan", 
+                    misi: "1. Optimalisasi pembangunan infrastruktur dusun yang merata.\n2. Peningkatan kesejahteraan perempuan, UMKM, dan pemuda desa.\n3. Optimalisasi kesehatan masyarakat dan pelayanan posyandu terpadu.", 
+                    foto: "" 
+                },
+                { 
+                    id: 3, 
+                    nomorUrut: 3, 
+                    nama: "Bpk. H. Rahmat Hidayat", 
+                    visi: "Bersama Membangun Desa Air Nyatoh Lebih Maju dan Agamis", 
+                    misi: "1. Peningkatan sarana prasarana keagamaan dan pendidikan TPQ.\n2. Transparansi pengelolaan dana desa secara terbuka.\n3. Pemberdayaan petani dan nelayan lokal untuk ketahanan pangan.", 
+                    foto: "" 
+                }
+            ]);
+
             const [jadwalSingkat, setJadwalSingkat] = useState([]);
             const [jadwalLengkap, setJadwalLengkap] = useState([]);
 
@@ -940,7 +1094,6 @@
                 }
             };
 
-            // State Hitung Cepat dengan rincian TPS 1 s.d. TPS 5
             const [dataHitungCepat, aturDataHitungCepat] = useState([
                 { id: 1, nama: "Calon No. Urut 1", warna: "#4A0E18", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
                 { id: 2, nama: "Calon No. Urut 2", warna: "#6B1725", tps: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 } },
@@ -1026,6 +1179,7 @@
                             aturModeAdmin={aturModeAdmin} tautanDpt={tautanDpt} aturTautanDpt={aturTautanDpt} 
                             dataHitungCepat={dataHitungCepat} aturDataHitungCepat={simpanDataSuara} 
                             galeriFoto={galeriFoto} muatUlangGaleri={ambilDataGaleri}
+                            daftarCalon={daftarCalon} aturDaftarCalon={aturDaftarCalon}
                         />
                     )}
 
@@ -1074,7 +1228,7 @@
 
                     <main className="flex-grow">
                         {tampilan === 'beranda' && <Beranda tautanDpt={tautanDpt} aturTampilan={navigasi} galeriFoto={galeriFoto} JADWAL_SINGKAT={jadwalSingkat} />}
-                        {tampilan === 'informasi' && <Informasi tabAwal={tabInformasiAwal} tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} />}
+                        {tampilan === 'informasi' && <Informasi tabAwal={tabInformasiAwal} tautanDpt={tautanDpt} dataHitungCepat={dataHitungCepat} JADWAL_LENGKAP={jadwalLengkap} daftarCalon={daftarCalon} />}
                     </main>
 
                     <footer className="bg-[#4A0E18] text-[#F8F7F3] border-t-4 border-[#C9A227] pt-16 pb-8 relative overflow-hidden mt-auto">
