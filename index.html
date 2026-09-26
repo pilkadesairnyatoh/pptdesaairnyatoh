@@ -678,44 +678,57 @@
             };
 
             const tambahCalonBaru = async (e) => {
-                e.preventDefault();
+            e.preventDefault();
+            try {
+                const { error } = await klienSupabase
+                    .from('calon_kades')
+                    .insert([{
+                        nama: namaInput,
+                        nomor_urut: parseInt(nomorUrutInput),
+                        visi: visiInput,
+                        misi: misiInput,
+                        foto: fotoUrlInput || null
+                    }]);
+                if (error) {
+                    if (error.code === 'PGRST205' || error.message.includes('schema cache')) {
+                        alert("Tabel 'calon_kades' belum dibuat di Supabase SQL Editor. Mohon jalankan SQL setup terlebih dahulu!");
+                        return;
+                    }
+                    throw error;
+                }
+                alert("Calon Kepala Desa berhasil ditambahkan ke database cloud!");
+                aturNamaInput('');
+                aturNomorUrutInput('1');
+                aturVisiInput('');
+                aturMisiInput('');
+                aturFotoUrlInput('');
+                muatUlangCalon();
+            } catch (err) {
+                console.error("Gagal menambah calon:", err);
+                alert("Gagal menambah calon ke database cloud: " + (err.message || err));
+            }
+        };
+
+        const hapusCalon = async (id) => {
+            if(window.confirm("Yakin ingin menghapus data calon ini dari cloud?")) {
                 try {
-                    const { error } = await klienSupabase
-                        .from('calon_kades')
-                        .insert([{
-                            nama: namaInput,
-                            nomor_urut: parseInt(nomorUrutInput),
-                            visi: visiInput,
-                            misi: misiInput,
-                            foto: fotoUrlInput || null
-                        }]);
-                    if (error) throw error;
-                    alert("Calon Kepala Desa berhasil ditambahkan ke database cloud!");
-                    aturNamaInput('');
-                    aturNomorUrutInput('1');
-                    aturVisiInput('');
-                    aturMisiInput('');
-                    aturFotoUrlInput('');
+                    const { error } = await klienSupabase.from('calon_kades').delete().eq('id', id);
+                    if (error) {
+                        if (error.code === 'PGRST205' || error.message.includes('schema cache')) {
+                            alert("Tabel 'calon_kades' belum dibuat di Supabase. Mohon buat tabel pada Supabase SQL Editor.");
+                            return;
+                        }
+                        throw error;
+                    }
                     muatUlangCalon();
                 } catch (err) {
-                    console.error("Gagal menambah calon:", err);
-                    alert("Gagal menambah calon ke database cloud.");
+                    console.error("Gagal menghapus calon:", err);
+                    alert("Gagal menghapus data: " + (err.message || err));
                 }
-            };
+            }
+        };
 
-            const hapusCalon = async (id) => {
-                if(window.confirm("Yakin ingin menghapus data calon ini dari cloud?")) {
-                    try {
-                        const { error } = await klienSupabase.from('calon_kades').delete().eq('id', id);
-                        if (error) throw error;
-                        muatUlangCalon();
-                    } catch (err) {
-                        console.error("Gagal menghapus calon:", err);
-                    }
-                }
-            };
-
-            const perbaruiSuaraTps = async (idCalon, nomorTps, nilai) => {
+        const perbaruiSuaraTps = async (idCalon, nomorTps, nilai) => {
                 const angka = parseInt(nilai) || 0;
                 const dataBaru = dataHitungCepat.map(calon => {
                     if (calon.id === idCalon) {
@@ -1119,29 +1132,35 @@
             ]);
 
             const ambilDataCalon = async () => {
-                try {
-                    const { data, error } = await klienSupabase
-                        .from('calon_kades')
-                        .select('*')
-                        .order('nomor_urut', { ascending: true });
-                    if (error) throw error;
-                    if (data && data.length > 0) {
-                        const dFormatted = data.map(item => ({
-                            id: item.id,
-                            nomorUrut: item.nomor_urut,
-                            nama: item.nama,
-                            visi: item.visi,
-                            misi: item.misi,
-                            foto: item.foto || ""
-                        }));
-                        aturDaftarCalon(dFormatted);
+            try {
+                const { data, error } = await klienSupabase
+                    .from('calon_kades')
+                    .select('*')
+                    .order('nomor_urut', { ascending: true });
+                if (error) {
+                    if (error.code === 'PGRST205' || error.message.includes('schema cache')) {
+                        console.warn("Tabel 'calon_kades' belum tersedia di Supabase. Menggunakan data default lokal.");
+                        return;
                     }
-                } catch (err) {
-                    console.error("Gagal mengambil data calon dari cloud:", err);
+                    throw error;
                 }
-            };
+                if (data && data.length > 0) {
+                    const dFormatted = data.map(item => ({
+                        id: item.id,
+                        nomorUrut: item.nomor_urut,
+                        nama: item.nama,
+                        visi: item.visi,
+                        misi: item.misi,
+                        foto: item.foto || ""
+                    }));
+                    aturDaftarCalon(dFormatted);
+                }
+            } catch (err) {
+                console.error("Gagal mengambil data calon dari cloud:", err);
+            }
+        };
 
-            const [jadwalSingkat, setJadwalSingkat] = useState([]);
+        const [jadwalSingkat, setJadwalSingkat] = useState([]);
             const [jadwalLengkap, setJadwalLengkap] = useState([]);
 
             const ambilDataGaleri = async () => {
