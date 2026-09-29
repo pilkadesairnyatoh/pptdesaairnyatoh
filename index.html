@@ -668,7 +668,8 @@
             const [nomorUrutInput, aturNomorUrutInput] = useState('1');
             const [visiInput, aturVisiInput] = useState('');
             const [misiInput, aturMisiInput] = useState('');
-            const [fotoUrlInput, aturFotoUrlInput] = useState('');
+            const [berkasFotoCalon, aturBerkasFotoCalon] = useState(null);
+            const [sedangMengunggahCalon, aturSedangMengunggahCalon] = useState(false);
 
             const simpanTautan = (e) => {
                 e.preventDefault();
@@ -679,7 +680,25 @@
 
             const tambahCalonBaru = async (e) => {
                 e.preventDefault();
+                aturSedangMengunggahCalon(true);
                 try {
+                    let urlFotoFinal = null;
+
+                    if (berkasFotoCalon) {
+                        const namaFileUnik = 'calon_' + Date.now() + '_' + berkasFotoCalon.name;
+                        const { error: errorUpload } = await klienSupabase.storage
+                            .from('galeriPilkades')
+                            .upload(namaFileUnik, berkasFotoCalon);
+
+                        if (errorUpload) throw errorUpload;
+
+                        const { data: dataUrl } = klienSupabase.storage
+                            .from('galeriPilkades')
+                            .getPublicUrl(namaFileUnik);
+
+                        urlFotoFinal = dataUrl.publicUrl;
+                    }
+
                     const { error } = await klienSupabase
                         .from('calon_kades')
                         .insert([{
@@ -687,24 +706,28 @@
                             nomor_urut: parseInt(nomorUrutInput),
                             visi: visiInput,
                             misi: misiInput,
-                            foto: fotoUrlInput || null
+                            foto: urlFotoFinal
                         }]);
+
                     if (error) throw error;
-                    alert("Calon Kepala Desa berhasil ditambahkan secara permanen ke Database Cloud Supabase!");
+                    
+                    alert("Calon Kepala Desa berhasil ditambahkan ke Cloud Supabase!");
                     aturNamaInput('');
                     aturNomorUrutInput('1');
                     aturVisiInput('');
                     aturMisiInput('');
-                    aturFotoUrlInput('');
+                    aturBerkasFotoCalon(null);
                     muatUlangCalon();
                 } catch (err) {
                     console.error("Gagal menambah calon:", err);
-                    alert("Gagal menambah calon. Pastikan Anda sudah menjalankan SQL Script pembuatan tabel di Supabase! Error: " + err.message);
+                    alert("Gagal menambah calon: " + err.message);
+                } finally {
+                    aturSedangMengunggahCalon(false);
                 }
             };
 
             const hapusCalon = async (id) => {
-                if(window.confirm("Yakin ingin menghapus data calon ini dari cloud?")) {
+                if(window.confirm("Yakin ingin menghapus data calon ini dari cloud Supabase?")) {
                     try {
                         const { error } = await klienSupabase.from('calon_kades').delete().eq('id', id);
                         if (error) throw error;
@@ -885,13 +908,8 @@
 
                             {menuAktif === 'calonadmin' && (
                                 <div className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 animasi-memudar">
-                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Profil, Visi, dan Misi Calon Kepala Desa (Cloud Supabase)</h3>
-                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Tambahkan informasi kandidat agar tersimpan permanen dan tampil secara publik di semua perangkat.</p>
-                                    
-                                    <div className="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2">
-                                        <p className="font-bold flex items-center gap-1 text-sm"><i className="fa-solid fa-triangle-exclamation"></i> Panduan Setup Tabel Supabase (SQL Editor):</p>
-                                        <p>Pastikan Anda sudah membuat tabel <code>calon_kades</code> di Supabase dengan kolom: <code>id</code>, <code>nomor_urut</code>, <code>nama</code>, <code>visi</code>, <code>misi</code>, <code>foto</code>.</p>
-                                    </div>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2">Kelola Profil, Visi, Misi, dan Foto Kandidat (Supabase)</h3>
+                                    <p className="text-sm text-gray-500 mb-8 pb-6 border-b border-gray-100">Unggah foto langsung dari perangkat Anda dan simpan data kandidat secara permanen.</p>
 
                                     <form onSubmit={tambahCalonBaru} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-10 space-y-4">
                                         <h4 className="font-bold text-[#4A0E18] mb-2 flex items-center gap-2"><i className="fa-solid fa-user-plus"></i> Tambah Calon Baru</h4>
@@ -914,10 +932,10 @@
                                         </div>
 
                                         <div>
-                                            <label className="block text-xs font-bold text-gray-700 mb-1">URL Foto Calon Online (Opsional)</label>
+                                            <label className="block text-xs font-bold text-gray-700 mb-1">Unggah Foto Kandidat (File dari Perangkat)</label>
                                             <input 
-                                                type="url" value={fotoUrlInput} onChange={(e)=>aturFotoUrlInput(e.target.value)} 
-                                                className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="https://example.com/foto.jpg" 
+                                                type="file" accept="image/*" onChange={(e)=>aturBerkasFotoCalon(e.target.files[0])} 
+                                                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-[#4A0E18] file:text-white hover:file:bg-[#6B1725] cursor-pointer bg-white border rounded-xl" 
                                             />
                                         </div>
 
@@ -937,8 +955,8 @@
                                             ></textarea>
                                         </div>
 
-                                        <button type="submit" className="bg-[#4A0E18] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#6B1725] transition-colors shadow-md">
-                                            Simpan & Tambah Calon ke Cloud Supabase
+                                        <button type="submit" disabled={sedangMengunggahCalon} className="bg-[#4A0E18] text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-[#6B1725] transition-colors shadow-md disabled:opacity-50">
+                                            {sedangMengunggahCalon ? "Menyimpan ke Cloud..." : "Simpan & Tambah Calon ke Supabase"}
                                         </button>
                                     </form>
 
