@@ -716,6 +716,104 @@
                 }
             };
 
+            const perbaruiSuaraTps = async (idCalon, nomorTps, nilai) => {
+                const angka = parseInt(nilai) || 0;
+                const dataBaru = dataHitungCepat.map(calon => {
+                    if (calon.id === idCalon) {
+                        return {
+                            ...calon,
+                            tps: {
+                                ...calon.tps,
+                                [nomorTps]: angka
+                            }
+                        };
+                    }
+                    return calon;
+                });
+                
+                aturDataHitungCepat(dataBaru);
+                
+                try {
+                    aturStatusSimpan('Menyimpan...');
+                    const calonTarget = dataBaru.find(c => c.id === idCalon);
+                    const { error } = await klienSupabase
+                        .from('suara_tps')
+                        .upsert({
+                            id_calon: calonTarget.id,
+                            tps_1: calonTarget.tps[1],
+                            tps_2: calonTarget.tps[2],
+                            tps_3: calonTarget.tps[3],
+                            tps_4: calonTarget.tps[4],
+                            tps_5: calonTarget.tps[5]
+                        }, { onConflict: 'id_calon' });
+
+                    if (error) throw error;
+                    aturStatusSimpan('Tersimpan di Cloud');
+                    setTimeout(() => aturStatusSimpan(''), 2000);
+                } catch (err) {
+                    console.error("Gagal sinkronisasi ke database:", err);
+                    aturStatusSimpan('Gagal Simpan!');
+                }
+            };
+
+            const prosesUnggahFoto = async (e) => {
+                const berkas = e.target.files[0];
+                if (!berkas) return;
+                
+                if (berkas.size > 5 * 1024 * 1024) {
+                    alert("Ukuran foto terlalu besar! Maksimal 5 MB.");
+                    return;
+                }
+
+                e.target.disabled = true;
+                const teksLabelAsli = e.target.previousElementSibling.innerText;
+                e.target.previousElementSibling.innerText = "Mengunggah... Mohon tunggu";
+
+                try {
+                    const namaUnik = Date.now() + '_' + berkas.name;
+                    
+                    const { error: errorUpload } = await klienSupabase.storage
+                        .from('galeriPilkades')
+                        .upload(namaUnik, berkas);
+                        
+                    if (errorUpload) throw errorUpload;
+
+                    const { data: dataUrl } = klienSupabase.storage
+                        .from('galeriPilkades')
+                        .getPublicUrl(namaUnik);
+
+                    const { error: errorDb } = await klienSupabase
+                        .from('galeri')
+                        .insert([{ url: dataUrl.publicUrl, id_foto: namaUnik }]);
+                        
+                    if (errorDb) throw errorDb;
+
+                    alert("Foto berhasil diunggah!");
+                    muatUlangGaleri(); 
+                } catch (kesalahan) {
+                    console.error("Gagal mengunggah:", kesalahan);
+                    alert("Gagal mengunggah foto. Pastikan konfigurasi Supabase sudah benar.");
+                } finally {
+                    e.target.value = '';
+                    e.target.disabled = false;
+                    e.target.previousElementSibling.innerText = teksLabelAsli;
+                }
+            };
+
+            const hapusFoto = async (idDokumen, idFotoPenyimpanan) => {
+                if(window.confirm("Yakin ingin menghapus foto ini?")) {
+                    try {
+                        await klienSupabase.from('galeri').delete().eq('id', idDokumen);
+                        if (idFotoPenyimpanan) {
+                            await klienSupabase.storage.from('galeriPilkades').remove([idFotoPenyimpanan]);
+                        }
+                        muatUlangGaleri(); 
+                    } catch (kesalahan) {
+                        console.error("Gagal menghapus:", kesalahan);
+                    }
+                }
+            };
+
             return (
                 <div className="min-h-screen bg-gray-100 flex animasi-memudar fixed inset-0 z-[100]">
                     <aside className="w-64 bg-[#4A0E18] text-white flex flex-col h-full shadow-2xl shrink-0">
@@ -792,33 +890,7 @@
                                     
                                     <div className="mb-8 p-5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900 space-y-2">
                                         <p className="font-bold flex items-center gap-1 text-sm"><i className="fa-solid fa-triangle-exclamation"></i> Panduan Setup Tabel Supabase (SQL Editor):</p>
-                                        <p>Jika Anda mengalami error <code>schema cache</code>, buka dasbor Supabase &gt; <strong>SQL Editor</strong> &gt; Jalankan kode berikut:</p>
-                                        <pre className="bg-white p-3 rounded border border-amber-300 overflow-x-auto text-[11px] font-mono text-gray-800">
-{`CREATE TABLE IF NOT EXISTS calon_kades (
-  id SERIAL PRIMARY KEY,
-  nomor_urut INT NOT NULL,
-  nama TEXT NOT NULL,
-  visi TEXT,
-  misi TEXT,
-  foto TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS galeri (
-  id SERIAL PRIMARY KEY,
-  url TEXT NOT NULL,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
-CREATE TABLE IF NOT EXISTS suara_tps (
-  id_calon INT PRIMARY KEY,
-  tps_1 INT DEFAULT 0,
-  tps_2 INT DEFAULT 0,
-  tps_3 INT DEFAULT 0,
-  tps_4 INT DEFAULT 0,
-  tps_5 INT DEFAULT 0
-);`}
-                                        </pre>
+                                        <p>Pastikan Anda sudah membuat tabel <code>calon_kades</code> di Supabase dengan kolom: <code>id</code>, <code>nomor_urut</code>, <code>nama</code>, <code>visi</code>, <code>misi</code>, <code>foto</code>.</p>
                                     </div>
 
                                     <form onSubmit={tambahCalonBaru} className="bg-gray-50 p-6 rounded-2xl border border-gray-200 mb-10 space-y-4">
@@ -847,7 +919,6 @@ CREATE TABLE IF NOT EXISTS suara_tps (
                                                 type="url" value={fotoUrlInput} onChange={(e)=>aturFotoUrlInput(e.target.value)} 
                                                 className="w-full px-3 py-2 border rounded-xl bg-white text-sm outline-none focus:ring-2 focus:ring-[#C9A227]" placeholder="https://example.com/foto.jpg" 
                                             />
-                                            <p className="text-[11px] text-gray-500 mt-1">💡 <span className="font-semibold">Tips:</span> Salin alamat gambar dari Google atau unggah ke layanan hosting gambar, lalu tempel URL-nya di sini.</p>
                                         </div>
 
                                         <div>
@@ -1134,10 +1205,6 @@ CREATE TABLE IF NOT EXISTS suara_tps (
                 }
             };
 
-            const simpanDataSuara = (dataBaru) => {
-                aturDataHitungCepat(dataBaru);
-            };
-
             useEffect(() => {
                 const singkatDiproses = JADWAL_SINGKAT_MENTAH.map(tahap => ({
                     ...tahap,
@@ -1181,7 +1248,7 @@ CREATE TABLE IF NOT EXISTS suara_tps (
                         <MasukAdmin saatMasuk={() => aturSudahMasuk(true)} saatBatal={() => aturModeAdmin(false)} /> :
                         <DasborAdmin 
                             aturModeAdmin={aturModeAdmin} tautanDpt={tautanDpt} aturTautanDpt={aturTautanDpt} 
-                            dataHitungCepat={dataHitungCepat} aturDataHitungCepat={simpanDataSuara} 
+                            dataHitungCepat={dataHitungCepat} aturDataHitungCepat={aturDataHitungCepat} 
                             galeriFoto={galeriFoto} muatUlangGaleri={ambilDataGaleri}
                             daftarCalon={daftarCalon} muatUlangCalon={ambilDataCalon}
                         />
@@ -1260,3 +1327,8 @@ CREATE TABLE IF NOT EXISTS suara_tps (
                 </div>
             );
         };
+
+        ReactDOM.render(<Aplikasi />, document.getElementById('akar'));
+    </script>
+</body>
+</html>
